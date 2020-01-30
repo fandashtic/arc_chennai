@@ -1,0 +1,122 @@
+CREATE Procedure sp_Insert_ItemsReceivedDetail_MUOM_ITC (@PartyID int,
+@ForumCode nvarchar(255),
+@Product_Code nvarchar(20),
+@ProductName nvarchar(255),
+@Description nvarchar(255),
+@PurchasePrice Decimal(18,6),
+@SalePrice Decimal(18,6),
+@MRP Decimal(18,6),
+@StockNorm Decimal(18,6),
+@MOQ Decimal(18,6),
+@TrackBatches Int,
+@ConversionFactor Decimal(18,6),
+@SaleID Int,
+@StockistMargin Decimal(18,6),
+@RetailerMargin Decimal(18,6),
+@CompanyMargin Decimal(18,6),
+@ReportingUnit Decimal(18,6),
+@TrackPKD Int,
+@VirtualTrackBatches Int,
+@ManufacturerCode nvarchar(255),
+@ManufacturerName nvarchar(255),
+@BrandName nvarchar(255),
+@UOM nvarchar(255),
+@ConversionUnit nvarchar(255),
+@ReportingUOM nvarchar(255),
+@SoldAs nvarchar(255),
+@CategoryName nvarchar(255),
+@CategoryDesc nvarchar(255),
+@TrackInventory Int,
+@PriceOption Int,
+@STDesc nvarchar(255),
+@STLST Decimal(18,6),
+@STCST Decimal(18,6),
+@PTDesc nvarchar(255),
+@PTLST Decimal(18,6),
+@PTCST Decimal(18,6),
+@CategoryPropCount Int,
+@ItemPropCount Int,
+@CreationDate Datetime,
+@ModifiedDate Datetime,
+@Active Int,
+@PTS Decimal(18,6),
+@PTR Decimal(18,6),
+@ECP Decimal(18,6),
+@CompanyPrice Decimal(18,6),
+@PurchasedAt Int,
+@CatParent nvarchar(255),
+@UOM1 nvarchar(255),
+@UOM2 nvarchar(255),
+@UOM1_Conversion decimal(18,6),
+@UOM2_Conversion decimal(18,6),
+@DEFAULTUOM int,
+@HYPERLINK nvarchar(256)=N'',
+@VAT Int = 0,
+@COLLECTTAXSUFFERED Int = 0,
+@STLSTApplicableOn Int = 1,
+@STLSTPartOff Decimal(18,6) = 100,
+@STCSTApplicableOn Int = 1,
+@STCSTPartOff Decimal(18,6) = 100,
+@PTLSTApplicableOn Int = 1,
+@PTLSTPartOff Decimal(18,6) = 100,
+@PTCSTApplicableOn Int = 1,
+@PTCSTPartOff Decimal(18,6) = 100,
+@AdhocAmount Decimal(18,6) = 0,
+@Taxinclusive int = 0,
+@TaxinclusiveRate Decimal(18,6) = 0,
+@UpdateStatus nVarChar(255),
+@EAN_NUMBER nVarChar(50),
+@MRPPerPack decimal(18,6),
+@ASL int = 0,
+@TOQ_Purchase int=0,
+@TOQ_Sales int =0,
+@HSNNumber 	nVarChar(15) = Null,
+@CategorizationName nVarChar(255) = Null,
+@xmlDocNumber int =0 ,
+@FreeSKUFlag int =0
+)
+As
+Begin
+
+Declare @ID int
+
+Truncate table tempCatList1
+
+Insert into ItemsReceivedDetail (PartyID, ForumCode, Product_Code, ProductName,
+Description, PurchasePrice, SalePrice, MRP, StockNorm, MinOrderQty, Track_Batches,
+ConversionFactor, SaleID, StockistMargin, RetailerMargin, CompanyMargin, ReportingUnit,
+TrackPKD, Virtual_Track_Batches, ManufacturerCode, ManufacturerName, BrandName,
+UOM, ConversionUnit, ReportingUOM, SoldAs, CategoryName, CategoryDesc,
+TrackInventory, PriceOption, STDesc, STLST, STCST, PTDesc, PTLST, PTCST,
+CategoryPropCount, ItemPropCount, CreationDate, ModifiedDate, PTS, PTR, ECP,
+CompanyPrice, PurchasedAt, ParentCategory, Active, UOM1, UOM2,
+UOM1_Conversion, UOM2_Conversion, DEFAULTUOM, HYPERLINK, VAT, COLLECTTAXSUFFERED,
+STLSTApplicableOn, STLSTPartOff, STCSTApplicableOn, STCSTPartOff,
+PTLSTApplicableOn, PTLSTPartOff, PTCSTApplicableOn, PTCSTPartOff, AdhocAmount,
+Taxinclusive,TaxinclusiveRate, UpdateStatus, EAN_NUMBER,MRPPerPack,ASL,TOQ_Purchase,TOQ_Sales,
+HSNNumber,CategorizationName,xmlDocNumber,FreeSKUFlag)
+Values
+(@PartyID, @ForumCode, @Product_Code, @ProductName, @Description, @PurchasePrice,
+@SalePrice, @MRP, @StockNorm, @MOQ, @TrackBatches,@ConversionFactor, @SaleID,
+@StockistMargin, @RetailerMargin, @CompanyMargin, @ReportingUnit, @TrackPKD,
+@VirtualTrackBatches, @ManufacturerCode, @ManufacturerName, @BrandName, @UOM,
+@ConversionUnit, @ReportingUOM, @SoldAs, @CategoryName, @CategoryDesc,
+@TrackInventory, @PriceOption, @STDesc, @STLST, @STCST, @PTDesc,
+@PTLST, @PTCST, @CategoryPropCount, @ItemPropCount, @CreationDate, @ModifiedDate, @PTS,
+@PTR, @ECP, @CompanyPrice, @PurchasedAt, @CatParent, @Active,
+@UOM1, @UOM2, @UOM1_Conversion, @UOM2_Conversion, @DEFAULTUOM, @HYPERLINK, @VAT, @COLLECTTAXSUFFERED,
+@STLSTApplicableOn, @STLSTPartOff, @STCSTApplicableOn, @STCSTPartOff,
+@PTLSTApplicableOn, @PTLSTPartOff, @PTCSTApplicableOn, @PTCSTPartOff, @AdhocAmount,
+@Taxinclusive,@TaxinclusiveRate,@UpdateStatus, @EAN_NUMBER,@MRPPerPack,@ASL,@TOQ_Purchase,@TOQ_Sales,
+@HSNNumber,@CategorizationName,@xmlDocNumber,@FreeSKUFlag)
+
+select @ID = @@Identity
+
+insert into tempCatList1
+Select cast(@ID as int),  Lev1.Category_name "Category",Lev2.Category_name "Sub_Category",Lev3.Category_name "Market_SKU",Items.Product_Code "Product_Code"
+from itemCategories lev1 with (nolock),itemCategories lev2 with (nolock) ,itemCategories lev3 with (nolock),Items with (nolock)
+Where Lev2.Parentid = Lev1.Categoryid  and Lev3.Parentid = Lev2.Categoryid And
+Items.Categoryid = Lev3.CategoryID  And Items.Product_code =  @Product_Code
+
+Select @ID
+end

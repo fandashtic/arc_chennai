@@ -1,0 +1,13 @@
+
+CREATE PROCEDURE sp_is_valid_item_parent(@CATEGORYID int)
+AS
+IF EXISTS (SELECT TOP 1 CategoryID FROM ItemCategories WHERE ParentID = @CATEGORYID)
+	BEGIN
+	SELECT 0
+	END
+ELSE
+	BEGIN
+	SELECT -1
+	END
+
+

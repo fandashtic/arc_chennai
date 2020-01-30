@@ -1,0 +1,7 @@
+
+CREATE PROCEDURE sp_get_CntRecSOItems(@SONUMBER INT)
+
+AS
+
+SELECT COUNT(*) FROM SODetailReceived WHERE SONumber = @SONUMBER
+

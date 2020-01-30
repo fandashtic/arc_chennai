@@ -1,0 +1,10 @@
+
+CREATE PROCEDURE sp_get_CountNotification(@FROMDATE DATETIME, 
+					   @TODATE DATETIME)
+
+AS
+
+SELECT COUNT(*) FROM CatalogNotification 
+WHERE DocumentDate BETWEEN @FROMDATE AND @TODATE
+
+

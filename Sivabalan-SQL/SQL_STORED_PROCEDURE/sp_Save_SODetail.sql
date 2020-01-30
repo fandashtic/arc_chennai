@@ -1,0 +1,53 @@
+CREATE Procedure sp_Save_SODetail(@SONumber int,
+				 @ItemCode nvarchar(15),
+				 @BatchNumber nvarchar(255), 
+				 @SalePrice Decimal(18,6), 
+				 @RequiredQuantity Decimal(18,6),
+				 @SaleTax Decimal(18,6),
+				 @Discount Decimal(18,6),
+				 @TAXCODE2 float,
+				 @TAXSUFFERED Decimal(18,6) = 0,
+				 @SerialNo int=0,
+				 @VAT int = 0,
+				 @TaxApplicableOn int =0 ,
+				 @TaxPartOff decimal(18,6) = 0,
+				 @TaxSuffApplicableOn int = 0,
+				 @TaxSuffPartOff decimal(18,6) =0 )
+AS
+INSERT INTO SODetail(SONumber,
+		     Product_Code,
+		     Batch_Number,
+		     Quantity,
+		     Pending,
+		     SalePrice,
+		     SaleTax,
+		     Discount,
+		     TaxCode2,
+		     TaxSuffered,
+		     Serial,
+			VAT,
+			TaxApplicableOn,
+			TaxPartOff,
+			TaxSuffApplicableOn,
+			TaxSuffPartOff)
+VALUES	(@SONumber, 
+	 @ItemCode,
+	 @BatchNumber, 
+	 @RequiredQuantity, 
+	 @RequiredQuantity, 
+	 @SalePrice, 
+	 @SaleTax, 
+	 @Discount,
+	 @TAXCODE2,
+	 @TAXSUFFERED,
+	 @SerialNo,
+         @VAT,
+	 @TaxApplicableOn,
+	 @TaxPartOff,
+	 @TaxSuffApplicableOn,
+	 @TaxSuffPartOff)
+
+
+
+
+

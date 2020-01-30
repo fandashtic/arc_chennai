@@ -1,0 +1,7 @@
+Company cd Key validation
+
+Dontvalidatecdkey = 1
+
+DEV010RegisterationCode
+DEV010_3883E0FB -> Companyid_c drive vol
+D:\ITC-6.2.0\config.ini

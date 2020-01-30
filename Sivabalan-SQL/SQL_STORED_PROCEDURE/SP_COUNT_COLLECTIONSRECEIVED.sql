@@ -1,0 +1,5 @@
+CREATE PROCEDURE SP_COUNT_COLLECTIONSRECEIVED
+AS
+SELECT Count(*) FROM CollectionsReceived WHERE (IsNull(Status, 0) & 128) = 0  
+
+

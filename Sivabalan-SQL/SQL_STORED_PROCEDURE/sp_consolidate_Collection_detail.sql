@@ -1,0 +1,32 @@
+CREATE procedure sp_consolidate_Collection_detail(@CollectionID int,
+						  @DocumentID int,						
+						  @DocumentDate datetime,
+						  @PaymentDate datetime,
+						  @DocumentType int,
+						  @AdjustedAmount Decimal(18,6), 
+						  @OriginalID nvarchar(50),
+						  @DocumentValue Decimal(18,6),
+						  @ExtraCollection Decimal(18,6),
+						  @AddlAdjustment Decimal(18,6))
+as
+Insert into CollectionDetail (	CollectionID,
+				DocumentID,
+				DocumentDate,
+				PaymentDate,
+				DocumentType,
+				AdjustedAmount,
+				OriginalID,
+				DocumentValue,
+				ExtraCollection,
+				Adjustment)
+values(
+				@CollectionID,
+				@DocumentID,
+				@DocumentDate,
+				@PaymentDate,
+				@DocumentType,
+				@AdjustedAmount,
+				@OriginalID,
+				@DocumentValue,
+				@ExtraCollection,
+				@AddlAdjustment)

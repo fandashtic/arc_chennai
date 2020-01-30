@@ -1,0 +1,28 @@
+
+CREATE PROCEDURE sp_insert_Catalog(@ITEMCODE NVARCHAR(15), @ITEMNAME NVARCHAR(255),
+@DESC NVARCHAR(255), @UOM INT, @CATEGORYID INT, @MANUFACTURERID INT,
+@BRANDID INT, @PRICE Decimal(18,6), @MRP Decimal(18,6), @VENDOR NVARCHAR(15), 
+@TRACK_BATCH INT, @SALE_TAX Decimal(18,6), @PURCHASEDAT INT, @SALEID INT, @TAXSUFFERED Decimal(18,6),
+@ALIASCODE NVARCHAR(20), @TRACK_PKD INT, @VIRTUAL_TRACK_BATCHES INT)
+
+AS
+
+IF @PURCHASEDAT = 1 
+	INSERT INTO Items (Product_Code, ProductName, Description, UOM, CategoryID,
+	ManufacturerID, BrandID, Purchase_Price, MRP, Preferred_Vendor, Track_Batches, 
+	Sale_Tax, Purchased_At, Active, PTS, SaleID, TaxSuffered, Alias, TrackPKD,
+	Virtual_Track_Batches)
+	VALUES
+	(@ITEMCODE, @ITEMNAME, @DESC, @UOM, @CATEGORYID, @MANUFACTURERID, @BRANDID,
+	@PRICE, @MRP, @VENDOR, @TRACK_BATCH, @SALE_TAX, @PURCHASEDAT, 0, @PRICE, @SALEID, 
+	@TAXSUFFERED, @ALIASCODE, @TRACK_PKD, @VIRTUAL_TRACK_BATCHES)
+ELSE IF @PURCHASEDAT = 2 
+	INSERT INTO Items (Product_Code, ProductName, Description, UOM, CategoryID,
+	ManufacturerID, BrandID, Purchase_Price, MRP, Preferred_Vendor, Track_Batches, 
+	Sale_Tax, Purchased_At, Active, PTR, SaleID, TaxSuffered, Alias, TrackPKD,
+	Virtual_Track_Batches)
+	VALUES
+	(@ITEMCODE, @ITEMNAME, @DESC, @UOM, @CATEGORYID, @MANUFACTURERID, @BRANDID,
+	@PRICE, @MRP, @VENDOR, @TRACK_BATCH, @SALE_TAX, @PURCHASEDAT, 0, @PRICE, @SALEID, 
+	@TAXSUFFERED, @ALIASCODE, @TRACK_PKD, @VIRTUAL_TRACK_BATCHES)
+

@@ -1,0 +1,5 @@
+
+CREATE VIEW V_getdate 
+AS 
+SELECT vGETDATE = GETDATE() 
+

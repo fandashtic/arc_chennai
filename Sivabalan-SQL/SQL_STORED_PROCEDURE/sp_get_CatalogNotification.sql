@@ -1,0 +1,11 @@
+
+CREATE PROCEDURE sp_get_CatalogNotification(@FROMDATE DATETIME, 
+					   @TODATE DATETIME)
+
+AS
+
+SELECT * FROM CatalogNotification 
+WHERE ReceivedDate BETWEEN @FROMDATE AND @TODATE
+ORDER BY CompanyID
+
+

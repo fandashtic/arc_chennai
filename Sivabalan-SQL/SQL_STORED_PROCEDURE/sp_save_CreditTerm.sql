@@ -1,0 +1,9 @@
+
+CREATE PROCEDURE sp_save_CreditTerm(@CREDITID INT, @VALUE INT, @TYPE INT, @ACTIVE INT)
+
+AS
+
+UPDATE CreditTerm SET Type = @TYPE, Value = @VALUE, Active = @ACTIVE WHERE CreditID = @CREDITID
+
+
+

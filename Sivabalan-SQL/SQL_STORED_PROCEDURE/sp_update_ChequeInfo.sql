@@ -1,0 +1,5 @@
+
+CREATE PROCEDURE sp_update_ChequeInfo( @CHEQUE_BOOK_NAME NVARCHAR(50),  @ACTIVE INT)  
+AS  
+UPDATE Cheques SET Active = @ACTIVE WHERE  Cheque_Book_Name = @CHEQUE_BOOK_NAME
+

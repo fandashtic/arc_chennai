@@ -1,0 +1,42 @@
+
+CREATE procedure sp_update_scheme          
+                (@SCHEMEID INT,          
+                 @VALIDFROM DATETIME,          
+                 @VALIDTO DATETIME,          
+                 @PROMPTONLY INT,          
+                 @MESSAGE NVARCHAR (255),                           
+                 @Active INT,          
+                 @DESCRIPTION NVARCHAR (255),          
+                 @SECONDARYSCHEME INT,          
+                 @HasSlabs INT,        
+                 @BudgetAmt Decimal(18,6) = 0,          
+                 @Customer int = 0,      
+          		 @HappyScheme Integer = 0,      
+         		 @FromHour DateTime = N'',      
+         		 @ToHour DateTime = N'',      
+         		 @FromWeekDay Integer = 0,      
+         		 @ToWeekDay Integer = 0,      
+         		 @FromDayMonth Integer = 0,      
+         		 @ToDayMonth Integer = 0,    
+       			 @PaymentMode nVarchar(255)=N'')            
+as          
+update [Schemes] Set           
+                ValidFrom=@VALIDFROM,          
+                ValidTo=@VALIDTO,           
+                PromptOnly=@PROMPTONLY,          
+                Message=@MESSAGE,          
+                Active=@ACTIVE,          
+                SchemeDescription=@DESCRIPTION,          
+                SecondaryScheme = @SECONDARYSCHEME,          
+                HasSlabs=@HasSlabs,        
+            	BudgetedAmount = @BudgetAmt,          
+            	Customer = @Customer  ,      
+       			HappyScheme = @HappyScheme ,      
+       			FromHour = @FromHour ,      
+       			ToHour = @ToHour ,      
+       			FromWeekDay = @FromWeekDay ,       
+       			ToWeekDay = @ToWeekDay ,      
+       			FromDayMonth = @FromDayMonth ,      
+       			ToDayMonth = @ToDayMonth ,    
+     			PaymentMode=@PaymentMode    
+    			where SchemeID=@SCHEMEID     

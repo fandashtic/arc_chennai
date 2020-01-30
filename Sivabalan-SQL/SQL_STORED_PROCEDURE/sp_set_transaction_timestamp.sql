@@ -1,0 +1,12 @@
+CREATE PROCEDURE sp_set_transaction_timestamp(@TRANDATE datetime)    
+AS    
+--IF @TRANDATE > GETDATE()    
+UPDATE SETUP SET TRANSACTIONDATE = @TRANDATE  WHERE @TRANDATE > TRANSACTIONDATE    
+--ELSE    
+-- UPDATE Setup SET TRANSACTIONDATE = GETDATE() WHERE GETDATE() > TRANSACTIONDATE     
+
+UPDATE SETUP SET Operating_Date = @TRANDATE WHERE @TRANDATE > Operating_Date And
+datediff(d,operating_date,@Trandate)=0 
+
+
+

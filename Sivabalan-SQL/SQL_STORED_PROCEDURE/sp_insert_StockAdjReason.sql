@@ -1,0 +1,11 @@
+
+
+CREATE PROCEDURE sp_insert_StockAdjReason(@MESSAGE NVARCHAR(255))
+
+AS
+
+INSERT INTO StockAdjustmentReason (Message) VALUES (@MESSAGE)
+
+SELECT @@IDENTITY
+
+

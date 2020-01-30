@@ -1,0 +1,12 @@
+
+CREATE PROCEDURE sp_can_changeparent(@CATEGORYID int)
+AS
+IF EXISTS (SELECT TOP 1 CategoryID FROM ItemCategories WHERE ParentID = @CATEGORYID)
+	BEGIN
+	SELECT 0
+	END
+ELSE
+	BEGIN
+	EXEC sp_is_valid_parent @CATEGORYID
+	END
+

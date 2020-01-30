@@ -1,0 +1,23 @@
+CREATE Procedure sp_ser_loadtaskspares_fmcg(@TaskID nvarchar(50),@ProductCode nvarchar(15),
+@CustomerID nvarchar(50))
+as
+Declare @Locality Int
+Select @Locality = IsNull(Locality,1) from Customer Where CustomerID = @CustomerID 
+
+Select SpareCode,'SpareName' = dbo.sp_ser_getitemname(SpareCode),
+'UOMDescription' = UOM.[Description],'UOMCode'= IsNull(task_items_spares.UOM,0),
+'Qty'=IsNull(Qty,0),'UOMQty' =IsNull(UOMQty,0),'TaxSufferedCode' = IsNull(Items.TaxSuffered,''),
+'SalePrice'= IsNull(Sale_price,0),
+'TaxSufferedPercentage' = IsNull(dbo.sp_ser_gettaxpercenatge(1,IsNull(Items.TaxSuffered,0),0),0),
+'SaleTaxCode' = IsNull(Sale_Tax,0),
+'SalesTaxPercentage'=IsNull(dbo.sp_ser_gettaxpercenatge(@Locality,IsNull(Items.Sale_Tax,0),0),0),
+'UOMPrice' = IsNull(dbo.sp_ser_getuomprice_fmcg(SpareCode,task_items_spares.UOM),0),
+'VatExists' = Isnull(Vat, 0), 'CollectTaxSuffered' = Isnull(CollectTaxSuffered, 0)
+from Task_Items_Spares,Items,UOM
+where TaskID = @TaskID
+and Task_Items_Spares.Product_Code = @ProductCode
+and Task_Items_Spares.SpareCode = Items.Product_Code
+and Task_Items_Spares.UOM = UOM.UOM
+
+
+

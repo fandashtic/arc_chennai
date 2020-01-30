@@ -1,0 +1,7 @@
+
+CREATE PROCEDURE sp_get_CntRecPOItems(@PONUMBER INT)
+
+AS
+
+SELECT COUNT(*) FROM PODetailReceived WHERE PONumber = @PONUMBER
+

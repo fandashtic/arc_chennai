@@ -1,0 +1,22 @@
+
+CREATE Procedure sp_get_stock        (@ITEM_CODE NVARCHAR(15),
+				      @BATCH_NUMBER NVARCHAR(255), 
+				      @REQUIRED_QUANTITY Decimal(18,6),
+				      @TRACK_BATCHES int)
+AS
+DECLARE @TOTAL_QUANTITY Decimal(18,6)
+
+IF @TRACK_BATCHES = 1
+	BEGIN
+	SELECT @TOTAL_QUANTITY = SUM(Quantity) FROM Batch_Products WHERE Product_Code = @ITEM_CODE AND Batch_Number = @BATCH_NUMBER
+	END
+ELSE
+	BEGIN
+	SELECT @TOTAL_QUANTITY = SUM(Quantity) FROM Batch_Products WHERE Product_Code = @ITEM_CODE
+	END
+SELECT @TOTAL_QUANTITY
+
+
+
+
+

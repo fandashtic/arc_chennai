@@ -1,0 +1,43 @@
+
+CREATE PROCEDURE sp_insert_Catalog_fmcg(@ITEMCODE NVARCHAR(15), @ITEMNAME NVARCHAR(255),
+@DESC NVARCHAR(255), @UOM INT, @CATEGORYID INT, @MANUFACTURERID INT,
+@BRANDID INT, @PRICE Decimal(18,6), @MRP Decimal(18,6), @VENDOR NVARCHAR(15), 
+@TRACK_BATCH INT, @SALE_TAX Decimal(18,6), @SALEID INT, @ALIASCODE NVARCHAR(20),
+@TRACK_PKD INT, @VIRTUAL_TRACK_BATCHES INT)
+
+AS
+INSERT INTO Items (Product_Code, 
+		   ProductName, 
+		   Description, 
+		   UOM, 
+		   CategoryID, 
+		   ManufacturerID, 
+		   BrandID, 
+		   Purchase_Price, 
+		   MRP, 
+		   Preferred_Vendor, 
+		   Track_Batches, 
+		   Sale_Tax, 
+		   Active, 
+		   SaleID,
+		   Alias, 
+		   TrackPKD,
+		   Virtual_Track_Batches)
+VALUES 		  (@ITEMCODE, 
+		   @ITEMNAME, 
+		   @DESC, 
+		   @UOM, 
+		   @CATEGORYID, 
+		   @MANUFACTURERID, 
+		   @BRANDID, 
+		   @PRICE, 
+		   @MRP, 
+		   @VENDOR, 
+		   @TRACK_BATCH, 
+		   @SALE_TAX, 
+		   0, 
+		   @SALEID,
+		   @ALIASCODE,
+		   @TRACK_PKD,
+		   @VIRTUAL_TRACK_BATCHES)
+

@@ -1,0 +1,7 @@
+
+CREATE PROCEDURE sp_get_Queries(@TABLE_ID INT)
+
+AS
+
+SELECT SQLName, SQL FROM SavedQueries WHERE TableID = @TABLE_ID
+

@@ -1,0 +1,35 @@
+CREATE procedure sp_acc_updateaccounts(@naccountid integer,@accountname nvarchar(255),
+@Groupid integer,@nactive integer,@openingbalance decimal(18,6) =0,@additionalfield1 decimal(18,6)=0,@additionalfield2 decimal(18,6)=0,
+@additionalfield3 decimal(18,6)=0,@additionalfield4 datetime = null,@additionalfield5 datetime=null,
+@additionalfield6 nvarchar(30) =N'',@additionalfield7 nvarchar(100) =N'',@additionalfield8 nvarchar(30) =N'',
+@additionalfield9 nvarchar(30) =N'',@additionalfield10 nvarchar(30) =N'',@additionalfield11 nvarchar(30) =N'',
+@additionalfield12 nvarchar(30) =N'',@additionalfield13 nvarchar(30) =N'',@additionalfield14 nvarchar(30) =N'',
+@additionalfield15 datetime = null,@additionalfield16 datetime = null,@additionalfield17 datetime = null,
+@additionalfield18 Int = 0)
+as 
+update accountsmaster
+--set [AccountName]= @accountname,
+  set [GroupID]= @Groupid, 		
+	[Active]= @nactive,
+	[AdditionalField1]=@additionalfield1,
+  	[AdditionalField2]=@additionalfield2,
+	[AdditionalField3]=@additionalfield3,
+	[AdditionalField4]=@additionalfield4,
+	[AdditionalField5]=@additionalfield5,
+	[AdditionalField6]=@additionalfield6,
+	[AdditionalField7]=@additionalfield7,
+	[AdditionalField8]=@additionalfield8,
+	[AdditionalField9]=@additionalfield9,
+	[AdditionalField10]=@additionalfield10,
+	[AdditionalField11]=@additionalfield11,
+	[AdditionalField12]=@additionalfield12,
+	[AdditionalField13]=@additionalfield13,
+	[AdditionalField14]=@additionalfield14,
+	[LastModifiedDate]=getdate(),
+	[OpeningBalance]=@openingbalance,
+	[AdditionalField15]=@additionalfield15,
+	[AdditionalField16]=@additionalfield16,
+	[AdditionalField17]=@additionalfield17,
+	[AdditionalField18]=@additionalfield18
+where [AccountID]=@naccountid
+select AccountName from AccountsMaster where AccountID =@naccountid

@@ -1,0 +1,10 @@
+
+CREATE PROCEDURE sp_get_setup
+ AS
+BEGIN
+
+	SET NOCOUNT ON
+
+	SELECT * FROM setup
+END
+

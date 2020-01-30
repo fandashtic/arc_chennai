@@ -1,0 +1,9 @@
+
+CREATE PROC sp_insert_van_itc
+	(@VAN NVARCHAR(50),
+	 @VANNO NVARCHAR(50),
+	 @READY_STOCK_SALES_VAN INT)
+AS
+INSERT INTO VAN (Van, Van_Number, Active, ReadyStockSalesVAN) 
+VALUES(@VAN, @VANNO, 1, @READY_STOCK_SALES_VAN)
+

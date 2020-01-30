@@ -1,0 +1,3 @@
+Create procedure mERP_sp_RemoveDivMapping
+as
+truncate table tblCGDivMapping
