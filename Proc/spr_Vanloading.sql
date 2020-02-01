@@ -1,4 +1,4 @@
---exec spr_Vanloading '11-Jan-2020','11-Jan-2020','ISS3-1','%'
+--exec spr_Vanloading '2020-01-21 00:00:00','2020-01-21 23:59:59','TN66AB9220-AS-01','%'
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'spr_Vanloading')
 BEGIN
     DROP PROC [spr_Vanloading]
@@ -98,20 +98,20 @@ Begin
 End
 Else
 Begin
-	select 1, Van,Category,Product_Code ItemCode, ProductName ItemName, 
-	(Case When (Cast((cast(Quantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(Quantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End) CFC,
-	--(Case When Category = 'MT' Then Quantity Else 
-	((Quantity - (Cast((cast(Quantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2)
-	--End) 
-	[Loose Pack] , 
-	--(Case When Category = 'MT' Then Quantity Else 
-	cast((Quantity / UOM2) as Decimal(18,6)) 
-	--End) 
-	[Total Packs],
-	'' [wapas Packs],
-	'' [wapas CFC]
-	From #temp
-	Order by Van, Category Asc
+	select Van,Category,Product_Code ItemCode, ProductName ItemName, 
+	(Case When (Cast((cast(Quantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(Quantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End) CFC,	
+	((Quantity - (Cast((cast(Quantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) [Loose Pack] , 	
+	CAST((ISNULL(Quantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6)) [Total Packs],
+	NULL [Wapas Packs],
+	NULL [Wapas CFC]
+	Into #Restult
+	From #temp WITH (NOLOCK)
+
+	SELECt * FROM (
+	SELECt 1 ID, * FROM #Restult
+	UNION ALL
+	SELECT 2 ID, '','','','',SUM(CFC), SUM([Loose Pack]),SUM([Total Packs]),SUM(ISNULL([Wapas Packs], 0)),SUM(ISNULL([Wapas CFC], 0)) FROM #Restult  WITH (NOLOCK)) S
+	Order by S.ID, S.Van, S.Category Asc
 End
 
 Drop table #temp
