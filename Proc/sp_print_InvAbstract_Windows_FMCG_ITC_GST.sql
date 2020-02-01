@@ -70,7 +70,7 @@ Declare @CHEQUE As NVarchar(50)
 Declare @DD As NVarchar(50)
 Declare @SC As NVarchar(50)
 Declare @DISPATCH As NVarchar(50)
-Declare @WDPhoneNumber As NVarchar(20)
+Declare @WDPhoneNumber As NVarchar(25)
 Declare @PointsEarned as int
 Declare @TotPointsEarned as int
 Declare @CustCode as nvarchar(255)
@@ -638,7 +638,7 @@ Collections.BankCode = BranchMaster.BankCode
 
 SELECT
 "Invoice Date" = convert(varchar(10),InvoiceDate,103),
-"Doc Ref" = InvoiceAbstract.DocReference ,
+"Doc Ref" = InvoiceAbstract.DocSerialType ,
 "Serial No" = CASE Isnull(GSTFlag,0) when 1 then isnull(GSTFullDocID,'') else case InvoiceType WHEN 1 THEN Inv.Prefix WHEN 3 THEN InvA.Prefix WHEN 4 THEN SR.Prefix WHEN 5 THEN SR.Prefix END + CAST(DocumentID AS nvarchar) end,
 "WDPhoneNumber" = 'Phone: ' + @WDPhoneNumber,
 "Customer Name" = CASE When Isnull(InvoiceAbstract.GSTFlag,0) = 1 and isnull(Customer.PreDefFlag,0) = 1 Then Company_Name + ' - ' + isnull(AlternateCGCustomerName,'') Else Company_Name End,

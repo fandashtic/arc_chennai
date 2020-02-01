@@ -6,7 +6,7 @@ END
 GO
 Create View V_ARC_SaleReturn_ItemDetails
 AS
-Select Distinct 
+Select  
 	IA.InvoiceID,
 	IA.InvoiceDate, 
 	IA.CustomerID,
@@ -27,6 +27,7 @@ Select Distinct
 	(ISNULL(ID.Quantity, 0) * ISNULL(ID.SalePrice, 0)) [GrossAmount],
 	ID.TaxAmount,
 	ID.Amount,
+	ID.STPayable,
 	ROUND(ID.Amount - ((ISNULL(ID.Quantity, 0) * ISNULL(ID.SalePrice, 0)) + ISNULL(ID.TaxAmount, 0)), 0)  [AmountDiff]
 From
 InvoiceAbstract IA WITH (NOLOCK),

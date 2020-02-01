@@ -44,8 +44,8 @@ Begin
 		I.*, 
 		O.Opening_Quantity [Opening_Quantity], O.Opening_Value [Opening_Value], 
 		P.Quantity [Purchase_Quantity], P.Amount [Purchase_Value],P.NetAmount [Purchase_WithTax_Value],
-		S.Quantity [Sales_Quantity], S.GrossAmount [Sales_Value], S.NetAmount [Sales_WithTax_Value], S.SaleOnPTS, S.[IncludeFreeItem] [Sales_IncludeFreeItem],
-		SR.Quantity [SalesReturn_Quantity], SR.GrossAmount [SalesReturn_Value], SR.NetAmount [SalesReturn_WithTax_Value], SR.SaleReturnOnPTS, SR.[IncludeFreeItem] [SalesReturn_IncludeFreeItem],
+		S.Quantity [Sales_Quantity], S.NetAmount [Sales_WithTax_Value], S.STPayable [S_STPayable],
+		SR.Quantity [SalesReturn_Quantity], SR.NetAmount [SalesReturn_WithTax_Value], SR.STPayable [SR_STPayable],
 		--(ISNULL(S.Quantity, 0) - ISNULL(SR.Quantity, 0)) [ActualSales],		
 		--(ISNULL(S.GrossAmount, 0) - ISNULL(S.SaleOnPTS, 0)) [PTR_PTS],
 		C.Opening_Quantity [Closing_Quantity], C.Opening_Value [Closing_Value] 
@@ -58,11 +58,11 @@ Begin
 		From V_ARC_Purchase_ItemDetails With (NOLOCK) 
 		Where dbo.StripTimeFromDate(BillDate) Between dbo.StripTimeFromDate(@MonthStartDate) AND dbo.StripTimeFromDate(@MonthEndDate) GROUP BY Product_Code) P ON P.Product_Code = I.Product_Code
 	FULL Outer Join (
-		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(GrossAmount) GrossAmount, SUM(ISNULL(Quantity, 0) * ISNULL(PurchasePrice, 0)) SaleOnPTS, Max(GrossValue) [IncludeFreeItem]
+		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(STPayable) STPayable
 		From V_ARC_Sale_ItemDetails With (NOLOCK) 
 		Where dbo.StripTimeFromDate(InvoiceDate) Between dbo.StripTimeFromDate(@MonthStartDate) AND dbo.StripTimeFromDate(DateAdd(d,(Case WHEN ISNULL(@IsCurrentMonth, 0) = 0 THEN 0 ELSE 1 END), @MonthEndDate)) GROUP BY Product_Code) S ON S.Product_Code = I.Product_Code
 	FULL Outer Join (
-		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(GrossAmount) GrossAmount, SUM(ISNULL(Quantity, 0) * ISNULL(PurchasePrice, 0)) SaleReturnOnPTS, Max(GrossValue) [IncludeFreeItem]
+		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(STPayable) STPayable
 		From V_ARC_SaleReturn_ItemDetails With (NOLOCK) 
 		Where dbo.StripTimeFromDate(InvoiceDate) Between dbo.StripTimeFromDate(@MonthStartDate) AND dbo.StripTimeFromDate(DateAdd(d,(Case WHEN ISNULL(@IsCurrentMonth, 0) = 0 THEN 0 ELSE 1 END), @MonthEndDate)) GROUP BY Product_Code) SR ON SR.Product_Code = I.Product_Code
 		
@@ -77,11 +77,13 @@ Begin
 	(CASE WHEN CAST(ItemFamily AS VARCHAR) = 'CIG' THEN 1.45 WHEN CAST(ItemFamily AS VARCHAR) = 'FOOD ' THEN 2.8 WHEN CAST(ItemFamily AS VARCHAR) = 'PCP' THEN 3.3 ELSE 0 END) [Margin %],
 	Sum([Opening_Quantity]) [Opening_Quantity],  Sum([Opening_Value]) [Opening_Value],
 	Sum([Purchase_Quantity]) [Purchase_Quantity], Sum([Purchase_Value]) [Purchase_Value], Sum([Purchase_WithTax_Value]) [Purchase_WithTax_Value], 
-	Sum([Sales_Quantity]) [Sales_Quantity], Sum([Sales_Value]) [Sales_Value], Sum([Sales_WithTax_Value]) [Sales_WithTax_Value], SUM(SaleOnPTS) SaleOnPTS, SUM([Sales_IncludeFreeItem]) [Sales_IncludeFreeItem],
-	Sum([SalesReturn_Quantity]) [SalesReturn_Quantity], Sum([SalesReturn_Value]) [SalesReturn_Value], Sum([SalesReturn_WithTax_Value]) [SalesReturn_WithTax_Value], SUM(SaleReturnOnPTS) SaleReturnOnPTS, SUM([SalesReturn_IncludeFreeItem]) [SalesReturn_IncludeFreeItem],
-	Sum([Closing_Quantity]) [Closing_Quantity], Sum([Closing_Value]) [Closing_Value]
-	,(SUM(SaleOnPTS) - SUM(SaleReturnOnPTS)) [Actual Sales]	
-	,(SUM([Sales_IncludeFreeItem]) - SUM([SalesReturn_IncludeFreeItem])) [Actual Sales Include Free Item]
+	 
+	Sum([Sales_Quantity]) [Sales_Quantity], SUM([Sales_WithTax_Value]) [Sales_WithTax_Value], SUM([S_STPayable]) [S_STPayable],
+	Sum([SalesReturn_Quantity]) [SalesReturn_Quantity], SUM([SalesReturn_WithTax_Value]) [SalesReturn_WithTax_Value], SUM([SR_STPayable]) [SR_STPayable],
+	(SUM([Sales_WithTax_Value]) - SUM([S_STPayable])) [Sales]
+	,(SUM([SalesReturn_WithTax_Value]) - SUM([SR_STPayable])) [Sales Return]
+	,Sum([Closing_Quantity]) [Closing_Quantity], Sum([Closing_Value]) [Closing_Value]
+	,((SUM([Sales_WithTax_Value]) - SUM([S_STPayable])) - (SUM([SalesReturn_WithTax_Value]) - SUM([SR_STPayable]))) [Actual Sales]
 	INTO #Temp
 	FROM #Stocks Group By ItemFamily
 
@@ -89,10 +91,9 @@ Begin
 	[Year], [Month], [Start Date], [End Date], [ItemFamily], [Margin %]
 	,Opening_Value Opening
 	,Purchase_Value Purchase
-	,SaleOnPTS Sales
-	,SaleReturnOnPTS SalesReturn
+	,[Sales]
+	,[Sales Return]
 	,[Actual Sales]
-	,[Actual Sales Include Free Item]
 	, Closing_Value Closing
 	,((ISNULL([Actual Sales], 0) + ISNULL([Closing_Value], 0)) - (ISNULL([Purchase_Value], 0) + ISNULL([Opening_Value], 0))) [Gross Profit]
 	--,([Actual Sales] * [Margin %]) [Profit By WD Margin]
