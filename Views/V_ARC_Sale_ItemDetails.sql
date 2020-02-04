@@ -13,6 +13,8 @@ Select
 	IA.SalesmanID,
 	IA.BeatID,
 	IA.GSTFullDocID,
+	IA.DocSerialType,
+	IA.DocReference,
 	IA.GoodsValue,
 	IA.GrossValue,
 	IA.NetValue,

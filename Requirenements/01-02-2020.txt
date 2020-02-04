@@ -1,0 +1,4 @@
+1. Sales Return Damage customer wise date wise value
+2. Total Outstanding, No of bills by salesman and salesman Category like food, PCP, bingo
+3. Outstanding report by outstanding day wise like less than 30 days, more than 30 days in row wise.
+4. 
