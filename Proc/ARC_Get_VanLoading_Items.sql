@@ -1,10 +1,10 @@
---exec spr_Vanloading '2020-01-21 00:00:00','2020-01-21 23:59:59','TN66AB9220-AS-01','%'
-IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'spr_Vanloading')
+--exec ARC_Get_VanLoading_Items '2020-01-21 00:00:00','2020-01-21 23:59:59','TN66AB9220-AS-01','%'
+IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'ARC_Get_VanLoading_Items')
 BEGIN
-    DROP PROC [spr_Vanloading]
+    DROP PROC [ARC_Get_VanLoading_Items]
 END
 GO
-CREATE procedure [dbo].[spr_Vanloading] (@FromDATE DATETIME,@ToDATE DATETIME,@Van Nvarchar(255),@UOM Nvarchar(10) = '%')
+CREATE procedure [dbo].[ARC_Get_VanLoading_Items] (@FromDATE DATETIME,@ToDATE DATETIME,@Van Nvarchar(255),@UOM Nvarchar(10) = '%')
 As
 Begin
 	Set DateFormat DMY
@@ -58,13 +58,13 @@ Begin
 
 
 	select Van,Category,Product_Code ItemCode, ProductName ItemName, 
-	(Case When (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End) [Salable CFC],	
-	((FreeQuantity - (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) [Salable Loose Pack] , 		
-	CAST((ISNULL(FreeQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6)) [Total Salable Packs],
+	CAST((Case When (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT) [Free CFC],	
+	CAST(((FreeQuantity - (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) AS INT) [Free Loose Pack] , 		
+	CAST(CAST((ISNULL(FreeQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT) [Total Free Packs],
 
-	(Case When (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End) [Free CFC],
-	((SalableQuantity - (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) [Free Loose Pack] , 	
-	CAST((ISNULL(SalableQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6)) [Total Free Packs],
+	CAST((Case When (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT) [Salable CFC],
+	CAST(((SalableQuantity - (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2)AS INT) [Salable Loose Pack] , 	
+	CAST(CAST((ISNULL(SalableQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT) [Total Salable Packs],
 
 	NULL [Wapas Packs],
 	NULL [Wapas CFC]
@@ -74,10 +74,16 @@ Begin
 	SELECt * FROM (
 	SELECt 1 ID, * FROM #Restult
 	UNION ALL
-	SELECT 2 ID, '','','','',
-	SUM([Salable CFC]), SUM([Salable Loose Pack]),SUM([Total Salable Packs]),
-	SUM([Free CFC]), SUM([Free Loose Pack]),SUM([Total Free Packs]),
-	SUM(ISNULL([Wapas Packs], 0)),SUM(ISNULL([Wapas CFC], 0)) FROM #Restult  WITH (NOLOCK)) S
+	SELECT 2 ID, '','','','',	
+	ISNULL(SUM([Free CFC]), 0), 
+	ISNULL(SUM([Free Loose Pack]), 0), 
+	ISNULL(SUM([Total Free Packs]), 0), 
+	ISNULL(SUM([Salable CFC]), 0), 
+	ISNULL(SUM([Salable Loose Pack]), 0), 
+	ISNULL(SUM([Total Salable Packs]), 0), 
+	ISNULL(SUM(ISNULL([Wapas Packs], 0)), 0), 
+	ISNULL(SUM(ISNULL([Wapas CFC], 0)), 0)
+	FROM #Restult  WITH (NOLOCK)) S
 	Order by S.ID, S.Van, S.Category Asc
 
 	Drop table #temp
