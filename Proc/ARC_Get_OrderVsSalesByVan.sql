@@ -1,28 +1,18 @@
---Exec ARC_Get_OrderVsSalesByVan '%', '20-Jan-2020', '20-Jan-2020', 'TN66AB9220-B-01'
---Exec ARC_Insert_ReportData 396, 'Order vs Sales By Van', 1, 'ARC_Get_OrderVsSalesByVan', 'Click to view Order vs Sales by Van', 417, 140, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
-
+--Exec ARC_Get_OrderVsSalesByVan '20-Jan-2020', '20-Jan-2020', '%'
+--Exec ARC_Insert_ReportData 396, 'Order vs Sales By Van', 1, 'ARC_Get_OrderVsSalesByVan', 'Click to view Order vs Sales by Van', 417, 34, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
+--GO
+--Exec ARC_GetUnusedReportId
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'ARC_Get_OrderVsSalesByVan')
 BEGIN
     DROP PROC ARC_Get_OrderVsSalesByVan
 END
 GO
-CREATE Proc ARC_Get_OrderVsSalesByVan(
-	@CustomerName Nvarchar(255) = '%', 
+CREATE Proc ARC_Get_OrderVsSalesByVan(	
 	@FromDate DateTime = null, 
 	@ToDate DateTime = null, 
 	@Van Nvarchar(255) = '%')  
 AS BEGIN  
-	 DECLARE @CustomerId Nvarchar(255)  
-
-	 IF(ISNULL(@CustomerName, '') <> '%')  
-	 BEGIN  
-		SELECT TOP 1 @CustomerId = CustomerId FROM Customer WITH (NOLOCK) WHERE Company_Name = @CustomerName  
-	 END  
-	 ELSE  
-	 BEGIN  
-		SET @CustomerId =  '%'  
-	 END  
- 
+	 
 	Declare @VanList as Table (Van Nvarchar(255))
 
 	If @Van = '%'
@@ -48,25 +38,25 @@ AS BEGIN
 	--select * from #InvoiceAbstract
 
 	 Select    	  
-	  S.Salesman_Name [Salesman],  	  
-	  B.Description [Beat],  
-	  SA.CustomerID,  
+	  --S.Salesman_Name [Salesman],  	  
+	  --B.Description [Beat],  
+	  --SA.CustomerID,  
 	  C.Company_Name [Customer Name],  
 	  SA.SONumber [Order Number],  
 	  SA.SODate [Order Date],  
 	  SA.Value [Order Value],    
 	  IA.GSTFullDocID [InvoiceId],
-	  IA.DocReference [Document id],
-	  IA.DocSerialType [Van Number],
+	  --IA.DocReference [Document id],	  
 	  IA.InvoiceDate,  
-	  IA.NetValue [Before Delivery value]
+	  IA.DocSerialType [Van Number],
+	  (select top 1 S.SalesmanCategoryName From V_ARC_Customer_Mapping S WITH (NOLOCK) WHERE S.SalesmanID = IA.SalesmanID) [Category],
+	  IA.NetValue [Before Delivery Value]
 	  INTO #Temp
 	  FROM #InvoiceAbstract IA WITH (NOLOCK)	  	  
 	  JOIN SOAbstract SA WITH (NOLOCK) ON IA.CustomerID = SA.CustomerID AND IA.SONumber = SA.SONumber    
-	  FULL OUTER JOIN Salesman S WITH (NOLOCK) ON S.SalesmanID = SA.SalesmanID  
-	  FULL OUTER JOIN Beat B WITH (NOLOCK) ON B.BeatID = SA.BeatId  
-	  FULL OUTER JOIN Customer C WITH (NOLOCK) ON C.CustomerID = SA.CustomerID  
-	  WHERE SA.CustomerID = (CASE WHEN ISNUll(@CustomerId, '') <> '%' THEN @CustomerId ELSE SA.CustomerID END)
+	  JOIN Salesman S WITH (NOLOCK) ON S.SalesmanID = SA.SalesmanID  
+	  JOIN Beat B WITH (NOLOCK) ON B.BeatID = SA.BeatId  
+	  JOIN Customer C WITH (NOLOCK) ON C.CustomerID = SA.CustomerID  	  
   
   --select * from #Temp
 
@@ -81,15 +71,15 @@ AS BEGIN
 	SELECt 1, T.*,
 	--D.Delivered_InvoiceId,
 	ISNULL(D.Delivered_Date, T.InvoiceDate) [Delivered_Date],
-	ISNULL(D.Delivered_Value, T.[Before Delivery value]) Delivered_Value,
-	(CASE WHEN ISNULL(T.InvoiceId, '') <> '' THEN
-	 (CASE WHEN ISNULL(T.[Order Value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) > 0 THEN ISNULL(T.[Order Value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) ELSE null END)
-	 Else null END)
-	 [Order Diffrence Value],
-	(CASE WHEN ISNULL(T.[Before Delivery value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) > 0 THEN ISNULL(T.[Before Delivery value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) ELSE null END) [Invoice Diffrence Value]
+	ISNULL(D.Delivered_Value, T.[Before Delivery Value]) Delivered_Value
+	--,(CASE WHEN ISNULL(T.InvoiceId, '') <> '' THEN
+	-- (CASE WHEN ISNULL(T.[Order Value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) > 0 THEN ISNULL(T.[Order Value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) ELSE null END)
+	-- Else null END)
+	-- [Order Diffrence Value],
+	--(CASE WHEN ISNULL(T.[Before Delivery value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) > 0 THEN ISNULL(T.[Before Delivery value], 0) - ISNULL(ISNULL(D.Delivered_Value, T.[Before Delivery value]), 0) ELSE null END) [Invoice Diffrence Value]
 	from #Temp T WITH (NOLOCK)
 	FULL OUTER JOIN #Delivery D WITH (NOLOCK) ON T.InvoiceId = D.GSTFullDocID
-	ORDER BY [Order Date], Salesman ASC
+	ORDER BY [Order Date] ASC
 
 	Drop Table #Temp
 	Drop Table #Delivery

@@ -44,8 +44,8 @@ Begin
 		I.*, 
 		O.Opening_Quantity [Opening_Quantity], O.Opening_Value [Opening_Value], 
 		P.Quantity [Purchase_Quantity], P.Amount [Purchase_Value],P.NetAmount [Purchase_WithTax_Value],
-		S.Quantity [Sales_Quantity], S.NetAmount [Sales_WithTax_Value], S.STPayable [S_STPayable],
-		SR.Quantity [SalesReturn_Quantity], SR.NetAmount [SalesReturn_WithTax_Value], SR.STPayable [SR_STPayable],
+		S.Quantity [Sales_Quantity], S.NetAmount [Sales_WithTax_Value], S.STPayable [S_STPayable], SalesTaxableValue,
+		SR.Quantity [SalesReturn_Quantity], SR.NetAmount [SalesReturn_WithTax_Value], SR.STPayable [SR_STPayable], SRTaxableValue,
 		--(ISNULL(S.Quantity, 0) - ISNULL(SR.Quantity, 0)) [ActualSales],		
 		--(ISNULL(S.GrossAmount, 0) - ISNULL(S.SaleOnPTS, 0)) [PTR_PTS],
 		C.Opening_Quantity [Closing_Quantity], C.Opening_Value [Closing_Value] 
@@ -58,11 +58,11 @@ Begin
 		From V_ARC_Purchase_ItemDetails With (NOLOCK) 
 		Where dbo.StripTimeFromDate(BillDate) Between dbo.StripTimeFromDate(@MonthStartDate) AND dbo.StripTimeFromDate(@MonthEndDate) GROUP BY Product_Code) P ON P.Product_Code = I.Product_Code
 	FULL Outer Join (
-		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(STPayable) STPayable
+		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(STPayable) STPayable, SUM(TaxableValue) SalesTaxableValue
 		From V_ARC_Sale_ItemDetails With (NOLOCK) 
 		Where dbo.StripTimeFromDate(InvoiceDate) Between dbo.StripTimeFromDate(@MonthStartDate) AND dbo.StripTimeFromDate(DateAdd(d,(Case WHEN ISNULL(@IsCurrentMonth, 0) = 0 THEN 0 ELSE 1 END), @MonthEndDate)) GROUP BY Product_Code) S ON S.Product_Code = I.Product_Code
 	FULL Outer Join (
-		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(STPayable) STPayable
+		Select Product_Code, SUM(Quantity) Quantity, SUM(Amount) NetAmount, SUM(STPayable) STPayable, SUM(TaxableValue) SRTaxableValue
 		From V_ARC_SaleReturn_ItemDetails With (NOLOCK) 
 		Where dbo.StripTimeFromDate(InvoiceDate) Between dbo.StripTimeFromDate(@MonthStartDate) AND dbo.StripTimeFromDate(DateAdd(d,(Case WHEN ISNULL(@IsCurrentMonth, 0) = 0 THEN 0 ELSE 1 END), @MonthEndDate)) GROUP BY Product_Code) SR ON SR.Product_Code = I.Product_Code
 		
@@ -83,7 +83,7 @@ Begin
 	(SUM([Sales_WithTax_Value]) - SUM([S_STPayable])) [Sales]
 	,(SUM([SalesReturn_WithTax_Value]) - SUM([SR_STPayable])) [Sales Return]
 	,Sum([Closing_Quantity]) [Closing_Quantity], Sum([Closing_Value]) [Closing_Value]
-	,((SUM([Sales_WithTax_Value]) - SUM([S_STPayable])) - (SUM([SalesReturn_WithTax_Value]) - SUM([SR_STPayable]))) [Actual Sales]
+	,(SUM(SalesTaxableValue) - SUM(SRTaxableValue)) [Actual Sales]
 	INTO #Temp
 	FROM #Stocks Group By ItemFamily
 

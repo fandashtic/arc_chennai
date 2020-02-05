@@ -1,4 +1,7 @@
---Exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569', '%'
+--exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569','%'
+--exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569','301 -HPM -TUE'
+--exec ARC_Get_CurrentOutstanding_Consolidation '%','301 -HPM -TUE'
+--exec ARC_Get_CurrentOutstanding_Consolidation '%','%'
 --PreRequest SalesmanCategory, V_ARC_Customer_Mapping, fn_ARC_CustomerOutstandingDetails
 --Exec ARC_GetUnusedReportId
 --Exec ARC_Insert_ReportData 475, 'Current Outstanding Consolidation', 1, 'ARC_Get_CurrentOutstanding_Consolidation', 'Click to view Current Outstanding Consolidation', 53, 98, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
@@ -17,37 +20,56 @@ GO
 CREATE Proc ARC_Get_CurrentOutstanding_Consolidation(@Salesman Nvarchar(255) = '%', @Beat Nvarchar(255) = '%')
 AS 
 BEGIN
-	Declare @CustomerIDs AS Table (Id int Identity(1,1), CustomerID Nvarchar(255))
+	Declare @CustomerIDs AS Table (Id int Identity(1,1), CustomerID Nvarchar(255), SalesManID Int, BeatId Int)
+	Declare @CustomerIdsFinal AS Table (Id int Identity(1,1), CustomerID Nvarchar(255), SalesManID Int, BeatId Int)
 	Declare @Salesmans AS Table (SalesmanId INT)
 	Declare @Beats AS Table (BeatID INT)
 
-	IF(ISNULL(@Salesman, '') <> '%')
+
+	IF(ISNULL(@Salesman, '') = '%' AND ISNULL(@Beat, '') = '%')
 	BEGIN
-		INSERT INTO @Salesmans SELECT DISTINCT SalesmanID FROM Salesman WITH (NOLOCK) WHERE Salesman_Name IN (SELECT * FROM dbo.sp_SplitIn2Rows(@Salesman, ','))
+		Insert into @CustomerIdsFinal(CustomerID, SalesManID, BeatId)
+		select DISTINCT CustomerID, SalesManID, BeatId
+		FROM InvoiceAbstract B WITH (NOLOCK)
 	END
-	--ELSE
-	--BEGIN
-	--	INSERT INTO @Salesmans SELECT DISTINCT SalesmanID FROM Salesman WITH (NOLOCK)
-	--END
-
-	Insert into @CustomerIDs(CustomerID)
-	select Distinct CustomerID FROM V_ARC_Customer_Mapping V WITH (NOLOCK)
-	JOIN @Salesmans S ON S.SalesmanId = V.SalesmanID
-
-	IF(ISNULL(@Beat, '') <> '%')
+	ELSE
 	BEGIN
-		INSERT INTO @Beats SELECT DISTINCT BeatID FROM Beat WITH (NOLOCK) WHERE Description IN (SELECT * FROM dbo.sp_SplitIn2Rows(@Beat, ','))
-	END
-	--ELSE
-	--BEGIN
-	--	INSERT INTO @Beats SELECT DISTINCT BeatID FROM Beat WITH (NOLOCK)
-	--END
+		IF(ISNULL(@Salesman, '') <> '%')
+		BEGIN
+			INSERT INTO @Salesmans SELECT DISTINCT SalesmanID FROM Salesman WITH (NOLOCK) WHERE Salesman_Name IN (SELECT * FROM dbo.sp_SplitIn2Rows(@Salesman, ','))
+		END
+		ELSE
+		BEGIN
+			INSERT INTO @Salesmans SELECT DISTINCT SalesmanID FROM Salesman WITH (NOLOCK)
+		END	
 
-	Insert into @CustomerIDs(CustomerID)
-	select Distinct CustomerID FROM V_ARC_Customer_Mapping V WITH (NOLOCK)	
-	JOIN @Beats B ON B.BeatID = V.BeatID
-	WHERE CustomerID NOT IN (SELECT DISTINCT CustomerID FROM @CustomerIDs)
+		Insert into @CustomerIDs(CustomerID, SalesManID, BeatId)
+		select DISTINCT CustomerId,SalesManID, BeatId 
+		FROM InvoiceAbstract B WITH (NOLOCK)
+		WHERE SalesmanId IN (SELECT DISTINCT SalesmanId FROM @Salesmans)
 	
+		IF(ISNULL(@Beat, '') <> '%')
+		BEGIN
+			INSERT INTO @Beats SELECT DISTINCT BeatID FROM Beat WITH (NOLOCK) WHERE Description IN (SELECT * FROM dbo.sp_SplitIn2Rows(@Beat, ','))
+		END
+
+		Insert into @CustomerIDs(CustomerID, SalesManID, BeatId)
+		select DISTINCT CustomerId,SalesManID, BeatId 
+		FROM InvoiceAbstract V WITH (NOLOCK)	
+		WHERE BeatID IN (SELECT DISTINCT BeatID FROM @Beats)	
+		AND CustomerID NOT IN (SELECT DISTINCT CustomerID FROM @CustomerIDs)
+
+		IF EXISTS(SELECT TOP 1 1 FROM @Beats)
+		BEGIN
+			INSERT INTO @CustomerIdsFinal(CustomerID, SalesManID, BeatId)
+			SELECT DISTINCT CustomerID, SalesManID, BeatId FROM @CustomerIDs WHERE BeatID IN (SELECT DISTINCT BeatID FROM @Beats)
+		END
+		ELSE 
+		BEGIN
+			INSERT INTO @CustomerIdsFinal(CustomerID, SalesManID, BeatId) SELECT DISTINCT CustomerID, SalesManID, BeatId FROM @CustomerIDs
+		END
+	END
+
 	CREATE TABLE #TempTable(
 			SalesManID int,
 			SalesMan nvarchar(500) NULL,
@@ -74,11 +96,13 @@ BEGIN
 	Declare @I as Int
 	SET @I = 1
 	Declare @CustomerID AS NVARCHAR(255)
+	Declare @SalesManID INT
+	Declare @BeatId INT
 
-	WHILE(@I < (SELECT Max(ID) From @CustomerIDs))
+	WHILE(@I < (SELECT Max(ID) From @CustomerIdsFinal))
 	BEGIN
 
-		SELECT @CustomerID = CustomerID FROM @CustomerIDs WHERE Id = @I
+		SELECT @CustomerID = CustomerID, @SalesManID = SalesManID, @BeatId = BeatId FROM @CustomerIdsFinal WHERE Id = @I
 		Insert into #TempTable
 		select
 		O.SalesmanID,
@@ -101,7 +125,7 @@ BEGIN
 		ChequeNumber,
 		ChequeDate,
 		ChequeOnHand
-		from dbo.fn_ARC_CustomerOutstandingDetails(@CustomerId,0,0) O --JOIN V_ARC_Customer_Mapping S On S.SalesmanId = O.SalesmanId AND S.CustomerId = O.CustomerId
+		from dbo.fn_ARC_CustomerOutstandingDetails(@CustomerId, @SalesManID ,@BeatId) O 
 		Where (Isnull(Balance, 0) > 0 OR ISNULL(ChequeOnHand, 0) > 0)
 
 		SET @I = @I + 1

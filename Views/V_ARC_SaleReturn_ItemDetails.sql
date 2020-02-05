@@ -27,6 +27,7 @@ Select
 	ID.PTS PurchasePrice,
 	ID.SalePrice,
 	(ISNULL(ID.Quantity, 0) * ISNULL(ID.SalePrice, 0)) [GrossAmount],
+	((ID.UOMQty * ID.UOMPrice) - ID.DiscountValue)- (((ID.UOMQty * ID.UOMPrice) - ID.DiscountValue)*(IA.AdditionalDiscount/100)) [TaxableValue],
 	ID.TaxAmount,
 	ID.Amount,
 	ID.STPayable,

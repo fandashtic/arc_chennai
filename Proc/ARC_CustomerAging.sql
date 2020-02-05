@@ -9,7 +9,7 @@ GO
 CREATE procedure [dbo].[ARC_CustomerAging]
 AS       
 BEGIN
-	select C.CustomerId, C.Company_Name, C.BillingAddress, C.ShippingAddress, C.Phone, ISNULL(C.GSTIN, '') [GST Number],  C.CreationDate [Date of Join]
+	select C.CustomerId, C.Company_Name [Customer Name], C.BillingAddress, C.ShippingAddress, C.Phone, ISNULL(C.GSTIN, '') [GST Number],  C.CreationDate [Date of Join]
 	,(Select Top 1 InvoiceDate From InvoiceAbstract WITH (NOLOCK) WHERe CustomerID = C.CustomerID AND InvoiceType in (1,3) AND (Status & 128) = 0 ORDER BY InvoiceID Desc) [Last Sales]
 	, (Select Top 1 InvoiceDate From InvoiceAbstract WITH (NOLOCK) WHERe CustomerID = C.CustomerID AND InvoiceType in (4) ORDER BY InvoiceID Desc) [Last SalesReturn]
 	Into #Customer
@@ -17,7 +17,7 @@ BEGIN
 	Where C.CustomerId NOT IN('0', 'CNTRW0001', 'CNTTW0001', 'ITC001Outlet')
 
 	Select 1,
-	S.Salesman_Name, S.Description,
+	S.Salesman_Name, S.Description [Beat],
 	C.*
 	, DATEDIFF(d, ISNULL((CASE WHEN C.[Last Sales] > C.[Last SalesReturn] THEN C.[Last SalesReturn] ELSE C.[Last Sales] END), C.[Date of Join]), Getdate()) [Un Used Days]
 	From #Customer C WITH (NOLOCK)
