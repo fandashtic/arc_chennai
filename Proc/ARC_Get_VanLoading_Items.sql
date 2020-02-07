@@ -58,21 +58,27 @@ Begin
 
 
 	select Van,Category,Product_Code ItemCode, ProductName ItemName, 
-	CAST((Case When (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT) [Free CFC],	
-	CAST(((FreeQuantity - (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) AS INT) [Free Loose Pack] , 		
-	CAST(CAST((ISNULL(FreeQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT) [Total Free Packs],
+	ISNULL(CAST((Case When (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT), 0) [Free CFC],	
+	ISNULL(CAST(((FreeQuantity - (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) AS INT), 0) [Free Loose Pack] ,
+	ISNULL(CAST(CAST((ISNULL(FreeQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT), 0) [Total Free Packs],
 
-	CAST((Case When (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT) [Salable CFC],
-	CAST(((SalableQuantity - (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2)AS INT) [Salable Loose Pack] , 	
-	CAST(CAST((ISNULL(SalableQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT) [Total Salable Packs],
-
-	NULL [Wapas Packs],
-	NULL [Wapas CFC]
+	ISNULL(CAST((Case When (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT), 0) [Salable CFC],
+	ISNULL(CAST(((SalableQuantity - (Cast((cast(SalableQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2)AS INT), 0) [Salable Loose Pack] , 	
+	ISNULL(CAST(CAST((ISNULL(SalableQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT), 0) [Total Salable Packs]
 	Into #Restult
 	From #temp WITH (NOLOCK)
 
+	SELECT *, 
+	ISNULL([Free CFC], 0) + ISNULL([Salable CFC], 0) [Total CFC], 
+	ISNULL([Free Loose Pack], 0) +  ISNULL([Salable Loose Pack], 0) [Total Loose Pack], 
+	ISNULL([Total Free Packs], 0) + ISNULL([Total Salable Packs], 0) [Total Packs],
+	NULL [Wapas Packs],
+	NULL [Wapas CFC]
+	INTO #WithTotals
+	FROM #Restult WITH (NOLOCK)
+
 	SELECt * FROM (
-	SELECt 1 ID, * FROM #Restult
+	SELECt 1 ID, * FROM #WithTotals
 	UNION ALL
 	SELECT 2 ID, '','','','',	
 	ISNULL(SUM([Free CFC]), 0), 
@@ -81,9 +87,14 @@ Begin
 	ISNULL(SUM([Salable CFC]), 0), 
 	ISNULL(SUM([Salable Loose Pack]), 0), 
 	ISNULL(SUM([Total Salable Packs]), 0), 
+
+	ISNULL(SUM([Total CFC]), 0), 
+	ISNULL(SUM([Total Loose Pack]), 0), 
+	ISNULL(SUM([Total Packs]), 0), 
+
 	ISNULL(SUM(ISNULL([Wapas Packs], 0)), 0), 
 	ISNULL(SUM(ISNULL([Wapas CFC], 0)), 0)
-	FROM #Restult  WITH (NOLOCK)) S
+	FROM #WithTotals  WITH (NOLOCK)) S
 	Order by S.ID, S.Van, S.Category Asc
 
 	Drop table #temp
