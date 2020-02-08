@@ -16,11 +16,16 @@ GO
 Create Proc SP_ARC_LastPrintUpdate (@InvoiceId INT)  
 AS  
 BEGIN 
+	Declare @Date AS DATETIME
+	SET @Date = Getdate()
 	Update I
 	SET
-		I.[LastPrintOn] = Getdate(),
+		I.[LastPrintOn] = @Date,
 		I.[PrintCount] = ISNULL([PrintCount], 0) + 1
 	FROM InvoiceAbstract I WITH (NOLOCK)
 	WHERE I.InvoiceID = @InvoiceId
+
+	Insert into PrintingHistory(DocumentId,PrintingDate,DocumentType,PrintedBy,PrintedSystem)
+	Select  @InvoiceId, @Date, 'Sales Invoice', 0, Null
 END
 GO

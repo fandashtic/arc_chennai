@@ -17,6 +17,7 @@ Select 70, 'Analysis', Action, ActionData, ' Click to view Analysis reports' , 1
 Select 399, 'Master', Action, ActionData, ' Click to view Master reports' , 151 , Parameters, Image, SelectedImage, FormatID, DetailCommand, KeyType, Inactive, ForwardParam, PrintType, PrintWidth from ReportData  Where Id = 151 UNION ALL
 Select 414, 'Billing', Action, ActionData, ' Click to view Billing reports' , 151 , Parameters, Image, SelectedImage, FormatID, DetailCommand, KeyType, Inactive, ForwardParam, PrintType, PrintWidth from ReportData  Where Id = 151 UNION ALL
 Select 417, 'Warehouse', Action, ActionData, ' Click to view Warehouse reports' , 151 , Parameters, Image, SelectedImage, FormatID, DetailCommand, KeyType, Inactive, ForwardParam, PrintType, PrintWidth from ReportData  Where Id = 151
+Select 376, 'Dump', Action, ActionData, ' Click to view dump reports' , 151 , Parameters, Image, SelectedImage, FormatID, DetailCommand, KeyType, Inactive, ForwardParam, PrintType, PrintWidth from ReportData  Where Id = 151
 
 Update ReportData Set Parent = 53 Where Node In ('Outstanding Ledger By Customer wise', 'Outstanding Tracking Report By Customer', 'Stock Value By Month', 'WD Abstract', 'Collections Report', 'Collections - Advance', 'Collections CustomerWise')
 Update ReportData Set Parent = 70 Where Node In ('BillsCut & LinesCut', 'Order Vs Invoice', 'Bill Vs Sales')
