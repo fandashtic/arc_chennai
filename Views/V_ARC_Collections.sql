@@ -32,8 +32,8 @@ From
 	CollectionDetail CD WITH (NOLOCK)
 	JOIN Collections C WITH (NOLOCK) ON C.DocumentID = CD.CollectionID   
 	FULL OUTER JOIN ChequeCollDetails CCD WITH (NOLOCK) ON CCD.CollectionID = CD.CollectionID
-	WHERE (ISNULL(CD.OriginalID, '') NOT LIKE 'SR/%' AND ISNULL(CD.OriginalID, '') NOT LIKE 'CR%' )
-	And Isnull(C.paymentmode,0)=1               
+	WHERE (ISNULL(CD.OriginalID, '') NOT LIKE 'SR/%' AND ISNULL(CD.OriginalID, '') NOT LIKE 'CR%' AND ISNULL(CD.OriginalID, '') NOT LIKE 'CL%')
+	--And Isnull(C.paymentmode,0)=1               
 	And C.DocumentID = CD.CollectionID                   
 	And isnull(C.Status,0) & 192 = 0 
 GO

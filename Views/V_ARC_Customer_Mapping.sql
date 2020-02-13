@@ -1,3 +1,8 @@
+IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'V_ARC_Customer_Mapping')
+BEGIN
+    DROP VIEW V_ARC_Customer_Mapping
+END
+GO
 CREATE VIEW V_ARC_Customer_Mapping
 As
 SELECT 
