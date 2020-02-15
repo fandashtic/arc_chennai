@@ -26,59 +26,25 @@ BEGIN
  Declare @DRSQL AS NVARCHAR(MAX)
  Declare @CLSQL AS NVARCHAR(MAX)
  Declare @CustomerIdsFinal AS Table (CustomerID Nvarchar(255), SalesManID Int, BeatId Int)
- CREATE TABLE #V_ARC_Customer_Mapping (
- SalesmanID int,
- Salesman_Name nvarchar(255),
- SalesmanCategoryName nvarchar(255),
- BeatID int,
- Beat nvarchar(255),
- CustomerID nvarchar(255),
- CustomerName nvarchar(255),
- AccountType int,
- ChannelType int,
- GSTIN nvarchar(255))
 
- IF(ISNULL(@Salesman, '') <> '%' OR ISNULL(@Beat, '') <> '%')
- BEGIN
-  INSERT INTO @CustomerIdsFinal (CustomerID, SalesManID, BeatId)
-  SELECT DISTINCT CustomerID, SalesManID, BeatId from dbo.fn_Arc_Get_CustomersListBySalesManBeat(@Salesman, @Beat)
-
-  INSERT INTO #V_ARC_Customer_Mapping
-  SELECT DISTINCT
-		 V.SalesmanID
-		,V.Salesman_Name
-		,V.SalesmanCategoryName
-		,V.BeatID
-		,V.Beat
-		,V.CustomerID
-		,V.CustomerName
-		,V.AccountType
-		,V.ChannelType
-		,V.GSTIN
-  From V_ARC_Customer_Mapping V WITH (NOLOCK)
-  JOIN @CustomerIdsFinal SA ON V.CustomerID = SA.CustomerID
-  AND V.SalesManID = SA.SalesManID AND V.BeatId = SA.BeatId
- END
- ELSE
- BEGIN
-	INSERT INTO #V_ARC_Customer_Mapping
-	SELECT DISTINCT
-		 V.SalesmanID
-		,V.Salesman_Name
-		,V.SalesmanCategoryName
-		,V.BeatID
-		,V.Beat
-		,V.CustomerID
-		,V.CustomerName
-		,V.AccountType
-		,V.ChannelType
-		,V.GSTIN
-	From V_ARC_Customer_Mapping V WITH (NOLOCK)
- END
+ CREATE TABLE #SalesmanIDs ( SalesmanID int)
+ CREATE TABLE #BeatIDs(BeatID int)
 
  SELECT CustomerId, Company_Name INTO #Customer FROM Customer WITH (NOLOCK)
  SELECT SalesmanID, Salesman_Name INTO #Salesman FROM Salesman WITH (NOLOCK)
  SELECT BeatId, Description INTO #Beat FROM Beat WITH (NOLOCK)
+
+ IF(ISNULL(@Salesman, '') <> '%')
+ BEGIN
+	Insert into #SalesmanIDs
+	SELECT SalesmanID FROM #Salesman Where Salesman_Name in (SELECT * from dbo.sp_SplitIn2Rows(@Salesman, ','))
+ END
+
+ IF(ISNULL(@Beat, '') <> '%')
+ BEGIN
+	Insert into #BeatIDs
+	SELECT BeatId FROM #Beat Where Description in (SELECT * from dbo.sp_SplitIn2Rows(@Beat, ','))
+ END
  
  SET @SQL = ''
  SET @SRSSQL = 'UPDATE #Sales SET [SRS-TOTAL] = (0 '
@@ -89,22 +55,30 @@ BEGIN
 
  SELECT DISTINCT 
   SA.CustomerId,
-  V.CustomerName,
+  (select TOP 1 Company_Name FROM #Customer WITH (NOLOCK) WHERE CustomerId = SA.CustomerId) CustomerName,
+  SA.SalesmanID,
+  (select TOP 1 Salesman_Name FROM #Salesman WITH (NOLOCK) WHERE SalesmanID = SA.SalesmanID) SalesmanName,
+  SA.BeatID, 
+  (select TOP 1 Description FROM #Beat WITH (NOLOCK) WHERE BeatId = SA.BeatId) Beat,
   SA.InvoiceDate, 
   SA.DeliveryDate,
-  SA.GSTFullDocID [InvoiceId],  
-  SA.SalesmanID,
-  V.Salesman_Name SalesmanName,
-  V.SalesmanCategoryName SalesmanCategory,
-  SA.BeatID,  
-  V.Beat ,
+  SA.GSTFullDocID [InvoiceId], 
   SA.NetValue  [InvoiceAmount],
   SA.RoundOffAmount
 --  DeliveryStatus   
  Into #Sales
  FROM V_ARC_Sale_ItemDetails  SA WITH (NOLOCK)
- JOIN #V_ARC_Customer_Mapping V WITH (NOLOCK) --ON V.CustomerID = SA.CustomerID
- ON V.SalesManID = SA.SalesManID AND V.BeatId = SA.BeatId
+ where ISNULL(SA.Balance, 0) > 0
+
+ IF EXISTS(SELECT TOP 1 1 FROM #SalesmanIDs)
+ BEGIn
+	Delete From #Sales WHERE SalesmanID NOT IN (SELECT * FROM #SalesmanIDs)
+ END
+
+ IF EXISTS(SELECT TOP 1 1 FROM #BeatIDs)
+ BEGIn
+	Delete From #Sales WHERE BeatID NOT IN (SELECT * FROM #BeatIDs)
+ END
 
 
  SET @SQL ='ALTER TABLE #Sales ADD [SRS-TOTAL] DECIMAL(18, 6) DEFAULT 0 ' EXEC (@SQL)
@@ -285,7 +259,7 @@ BEGIN
  SET @SQL ='UPDATE #Sales SET [DueDaysByDelivery]= DATEDIFF(d, DeliveryDate, GETDATE()) WHERE ISNULL([OutStanding], 0) > 0' EXEC (@SQL)
    
  SET @SQL = ''
- SELECT ROW_NUMBER() OVER(ORDER BY InvoiceDate ASC) AS [Key], * FROM #Sales
+ SELECT 1 [Key], * FROM #Sales
 
  DROP TABLE #Sales
  DROP TABLE #SR

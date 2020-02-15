@@ -23,6 +23,7 @@ Select
 	IA.RoundOffAmount,
 	IA.DeliveryStatus,	
 	IA.DeliveryDate,
+	ia.Balance,
 	ID.Product_Code,
 	ID.Batch_Code,
 	ID.Batch_Number,
