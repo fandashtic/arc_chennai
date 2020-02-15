@@ -285,7 +285,7 @@ BEGIN
  SET @SQL ='UPDATE #Sales SET [DueDaysByDelivery]= DATEDIFF(d, DeliveryDate, GETDATE()) WHERE ISNULL([OutStanding], 0) > 0' EXEC (@SQL)
    
  SET @SQL = ''
- SELECT 1, * FROM #Sales
+ SELECT ROW_NUMBER() OVER(ORDER BY InvoiceDate ASC) AS [Key], * FROM #Sales
 
  DROP TABLE #Sales
  DROP TABLE #SR
