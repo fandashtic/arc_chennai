@@ -16,7 +16,7 @@ From tbl_mERP_OLClass OLC  WITH (NOLOCK), tbl_mERP_OLClassMapping OLM  WITH (NOL
 Where OLM.CustomerID = (select top 1 CustomerID From InvoiceAbstract WITH (NOLOCK) WHERE InvoiceID = @INVNO)  And 
  OLM.OLClassID = OLC.ID  
  And OLM.Active = 1 
- AND OLC.Outlet_Type_Desc LIKE '%Independent%')
+ AND (OLC.Outlet_Type_Desc LIKE '%Independent%' OR OLC.Outlet_Type_Desc LIKE '%Convenience%' OR OLC.Outlet_Type_Desc LIKE '%CDM%'))
 
 
 Declare @Cnt1 Int,@Cnt2 Int, @I Int,@I1 Int,@IDS1 Int,@FQty Decimal(18, 6)
