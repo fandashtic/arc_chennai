@@ -1,3 +1,4 @@
+--exec sp_print_RetInvItems_RespectiveUOM_FMCG_ITC_GST 65966
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'sp_print_RetInvItems_RespectiveUOM_FMCG_ITC_GST')
 BEGIN
     DROP PROC [sp_print_RetInvItems_RespectiveUOM_FMCG_ITC_GST]
@@ -17,6 +18,7 @@ Create Table #tmpSnoDup1(Sno_dup1 Int Identity(1,1),id_dup1	int)
 Create Table #tmpDuplicate(Duplicate Int)
 Insert into #tmpDuplicate Values (1)
 Insert into #tmpDuplicate Values (2)
+Insert into #tmpDuplicate Values (3)
 
 --Temp Tax Components
 Select MAX(ITC.Tax_Percentage) as TaxRate,SUM(ITC.Tax_Value)as TaxAmt,ITC.InvoiceID,ITC.Product_Code,TCD.TaxComponent_code,TCD.TaxComponent_desc
@@ -36,9 +38,7 @@ IGSTPer = Max(Case When TCD.TaxComponent_desc = 'IGST' Then ITC.Tax_Percentage E
 IGSTAmt = Sum(Case When TCD.TaxComponent_desc = 'IGST' Then ITC.NetTaxAmount Else 0 End),
 UTGSTPer = Max(Case When TCD.TaxComponent_desc = 'UTGST' Then ITC.Tax_Percentage Else 0 End),
 UTGSTAmt = Sum(Case When TCD.TaxComponent_desc = 'UTGST' Then ITC.NetTaxAmount Else 0 End),
---CESSPer = Max(Case When TCD.TaxComponent_desc in ('CESS','Compensation CESS') Then ITC.Tax_Percentage Else 0 End),
 CESSPer = Max(Case When TCD.TaxComponent_desc = 'CESS' Then ITC.Tax_Percentage Else 0 End),
---CESSAmt = Sum(Case When TCD.TaxComponent_desc in ('CESS','Compensation CESS') Then ITC.NetTaxAmount Else 0 End),
 CESSAmt = Sum(Case When TCD.TaxComponent_desc = 'CESS' Then ITC.NetTaxAmount Else 0 End),
 ADDLCESSPer = Max(Case When TCD.TaxComponent_desc = 'ADDL CESS' Then ITC.Tax_Percentage Else 0 End),
 ADDLCESSAmt = Sum(Case When TCD.TaxComponent_desc = 'ADDL CESS' Then ITC.NetTaxAmount Else 0 End) Into #TempTaxDet
@@ -249,22 +249,6 @@ Inner Join Brand on Items.BrandID = Brand.BrandID
 Left Outer Join UOM As RUOM on Items.ReportingUOM = RUOM.UOM
 Left Outer Join ConversionTable on Items.ConversionUnit = ConversionTable.ConversionID
 Inner Join #tmpDuplicate on 1 = 1
-
---FROM
---InvoiceAbstract,#TempInvDet2 as InvoiceDetail,UOM,Items,Batch_Products,Manufacturer, --GST_Changes
---ItemCategories,Brand,UOM As RUOM,ConversionTable,#Temp1,#tmpDuplicate --GST_Changes
---WHERE
---InvoiceAbstract.InvoiceID = #Temp1.invno
---AND InvoiceAbstract.InvoiceID = InvoiceDetail.InvoiceID
---AND InvoiceDetail.Product_Code = Items.Product_Code
----- AND InvoiceDetail.UOMQty > 0
---AND InvoiceDetail.UOM *= UOM.UOM
---AND InvoiceDetail.Batch_Code *= Batch_Products.Batch_Code
---AND Items.ManufacturerID *= Manufacturer.ManufacturerID
---AND Items.CategoryID = ItemCategories.CategoryID
---And Items.BrandID = Brand.BrandID
---And Items.ReportingUOM *= RUOM.UOM
---And Items.ConversionUnit *= ConversionTable.ConversionID
 GROUP BY
 #Temp1.InvID,InvoiceDetail.Product_code, Items.ProductName,
 InvoiceDetail.Batch_Number,InvoiceDetail.SalePrice,
@@ -273,15 +257,42 @@ Manufacturer.ManufacturerCode, Items.Description, ItemCategories.Category_Name,
 Items.ReportingUnit, Items.ConversionFactor, Manufacturer.Manufacturer_Name,
 Brand.BrandName, RUOM.Description, ConversionTable.ConversionID,
 ConversionTable.ConversionUnit, UOM.Description, InvoiceDetail.UOMPrice,
---InvoiceAbstract.TaxOnMRP,Items.TaxSuffered,Items.Sale_Tax,Items.MRP,
---InvoiceAbstract.TaxOnMRP,Items.TaxSuffered,Items.Sale_Tax,Items.MRPPerPack,
 InvoiceAbstract.TaxOnMRP,Items.TaxSuffered,Items.Sale_Tax,Isnull(InvoiceDetail.MRPPerPack,0),Items.MRPPerPack,
 InvoiceDetail.TaxID,#Temp1.Invno,
 InvoiceDetail.UOM, Items.Soldas,InvoiceAbstract.InvoiceType, Items.Soldas,
-Batch_Products.PKD,Batch_Products.Expiry,duplicate,Items.HSNNumber, --GST_Changes
---,InvoiceDetail.SGSTAmt ,InvoiceDetail.SGSTPer  ,InvoiceDetail.CGSTAmt  ,InvoiceDetail.CGSTPer ,
+Batch_Products.PKD,Batch_Products.Expiry,duplicate,Items.HSNNumber,
 InvoiceAbstract.AdditionalDiscount,InvoiceDetail.BaseUOMDescription
 Order By serial,Duplicate
+
+Update T
+SET
+T.[Quantity] = '',
+T.[Free] = '',
+T.[UOM] = '',
+T.[Sale Price] = '',
+T.[TaxDetails] = '',
+T.[TaxDetailsWithBreakup] = '',
+T.[Discount%] = '',
+T.[Discount Value] = '',
+T.[Other Disc] = '',
+T.[Amount] = '',
+T.[Description] = '',
+T.[Item Gross Value] = '',
+T.[Net Value] = '',
+T.[TaxableValue] = '',
+T.[Net Amount] = '',
+T.[Item MRP] = '',
+T.[Batch No.] = '',
+T.[Mfr. Dt.] = '',
+T.[Expiry] = '',
+T.[Total Tax] = '',
+T.[SGST Rate] = '',
+T.[SGST Amt] = '',
+T.[CGST Rate] = '',
+T.[CGST Amt] = '',
+T.[Serial] = ''
+--T.[Duplicate] = ''
+FROM #TmpInvDet T WITH (NOLOCK) WHERE (id1 % 3) = 0
 
 Update #TmpInvDet Set [Sale Price] = Cast(0 As Decimal(18,6)), [Amount] = Cast(0 As Decimal(18,6)) , [Item Gross Value] = Cast(0 As Decimal(18,6))
 Where [Sale Price] = N'Free'
