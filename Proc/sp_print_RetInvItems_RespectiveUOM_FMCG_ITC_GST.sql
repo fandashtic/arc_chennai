@@ -8,6 +8,17 @@ Create Procedure [dbo].[sp_print_RetInvItems_RespectiveUOM_FMCG_ITC_GST](@INVNO 
 AS
 Begin
 
+Declare @CustCategory int
+SET @CustCategory = 0;
+
+SET @CustCategory = (Select Top 1 1
+From tbl_mERP_OLClass OLC  WITH (NOLOCK), tbl_mERP_OLClassMapping OLM  WITH (NOLOCK)  
+Where OLM.CustomerID = (select top 1 CustomerID From InvoiceAbstract WITH (NOLOCK) WHERE InvoiceID = @INVNO)  And 
+ OLM.OLClassID = OLC.ID  
+ And OLM.Active = 1 
+ AND OLC.Outlet_Type_Desc LIKE '%Independent%')
+
+
 Declare @Cnt1 Int,@Cnt2 Int, @I Int,@I1 Int,@IDS1 Int,@FQty Decimal(18, 6)
 Declare @IDS Int,@ItmC nVarChar(50),@Batch nVarChar(150),@UOM nVarChar(150)
 Declare @srl int,@utgst_flag int
@@ -306,6 +317,11 @@ UOM=Cast(TaxableValue as decimal(18,2)),Amount='',[Net Value]='',[Net Amount]=''
 TaxDetailsWithBreakup = '',[Discount Value]='',[Discount%]='',TaxDetails='',[Batch No.]='' ,
 [Total Tax] = '',[Other Disc] = ''  Where Duplicate = 2
 --GST_Changes ends here
+
+IF(ISNULL(@CustCategory, 0) = 0)
+BEGIN
+	DELETE T FROM #tmpInvdet T WITH (NOLOCK) WHERE ISNULL(T.Duplicate, 0) = 2
+END
 
 IF @MODE=0
 select * from #tmpInvdet Order By id1--Serial
