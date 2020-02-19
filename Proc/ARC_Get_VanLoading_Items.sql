@@ -19,6 +19,8 @@ Begin
 		Insert Into @VanList Select Distinct Isnull(DocSerialType,'') From InvoiceAbstract Where Isnull(DocSerialType,'') <> '' And Isnull(DocSerialType,'') Like @Van
 	End
 
+	Exec SP_ARC_ResolveProduct_Mappings
+
 	CREATE TABLE #Temp(
 	Van nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	Category nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,

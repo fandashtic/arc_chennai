@@ -1,4 +1,4 @@
---exec SP_ARC_K4 '2020-02-17 00:00:00','2020-02-19 23:59:59'
+--exec SP_ARC_K4 '2020-02-01 00:00:00','2020-02-19 23:59:59'
 --Exec ARC_Insert_ReportData 557, 'K4', 1, 'SP_ARC_K4', 'Click to view K4', 53, 1, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
 --GO
 --Exec ARC_GetUnusedReportId
@@ -11,8 +11,10 @@ CREATE PROCEDURE [dbo].SP_ARC_K4 (@FromDate DateTime, @ToDate DateTime)
 AS
 BEGIN
 	SET DATEFORMAT DMY
-	select Billid, ODNumber,InvoiceReference, BillDate, SUM(OtherDiscAmount) [Purchase Discount] from V_ARC_Purchase_ItemDetails WITH (NOLOCK)
+	select Billid, ODNumber,InvoiceReference, BillDate, I.ItemFamily, SUM(OtherDiscAmount) [Purchase Discount] 
+	from V_ARC_Purchase_ItemDetails P WITH (NOLOCK)
+	RIGHT OUTER JOIN V_ARC_Items I ON I.Product_Code = P.Product_Code
 	where dbo.StripDateFromTime(BillDate) between @FromDate AND @ToDate
-	group by Billid,ODNumber,InvoiceReference, BillDate
+	group by Billid,ODNumber,InvoiceReference, BillDate, I.ItemFamily
 END
 GO
