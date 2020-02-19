@@ -1,4 +1,4 @@
- --Select * from V_ARC_Purchase_ItemDetails Where dbo.StripTimeFromDate(BillDate) Between '04-Jan-2020' And '04-Jan-2020'
+ --Select * from V_ARC_Purchase_ItemDetails Where dbo.StripTimeFromDate(BillDate) Between '04-Feb-2020' And '04-Feb-2020'
  --SELECT * FROM BillDetail T WHERE T.BillID = 1077 AND T.Product_Code = 'FL2111' AND T.Batch = '06A311219-50'
  --select * from Batch_Products T Where T.Product_Code = 'FL2111' AND T.Batch_Number = '06A311219-50'
  IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'V_ARC_Purchase_ItemDetails')
@@ -28,8 +28,9 @@ select DISTINCT
 	BD.InvDiscAmtPerUnit,
 	BD.InvDiscAmount,
 	BD.OtherDiscPerc,
+	(CASE WHEN ISNULL(BD.OtherDiscPerc, 0) > 0 THEN BD.OtherDiscAmount ELSE 0 END) OtherDiscPercAmount,
 	BD.OtherDiscAmtPerUnit,
-	BD.OtherDiscAmount,
+	(CASE WHEN ISNULL(BD.OtherDiscAmtPerUnit, 0) > 0 THEN BD.OtherDiscAmount ELSE 0 END) OtherDiscAmtPerUnitAmount,
 	BD.TaxAmount,
 	BD.NetPTS,
 	BD.Amount [NetAmount]
