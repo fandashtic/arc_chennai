@@ -21,7 +21,10 @@ BEGIN
 	V.Batch_Number,	
 	(ISNULL(V.Quantity, 0) / ISNULL(V.ReportingUOM, 1)) [Current Quantity],
 	V.PurchasePrice	,
+	V.PTS,
+	--V.PurchasePrice	- V.PTS [Diff],
 	V.PTR [SalePrice],
+	(ISNULL(V.Quantity, 0) * ISNULL(V.PTS, 1)) [Current Value],
 	(case When isnull(V.IsDamage, 0) <> 0 THEN  
 	(select Top 1 R.Reason_Description FROM V_Reason_Master R WHERE R.Reason_Type_ID = V.DamagesReason)
 	ELSE '' END) [DamagesReason],
