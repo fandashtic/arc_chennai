@@ -17,7 +17,10 @@ SELECT
 	IC4.Category_Name [Manufacture],
 	IC3.Category_Name [Division],
 	IC2.Category_Name [SubCategory],
-	IC1.Category_Name [MarketSKU]
+	IC1.Category_Name [MarketSKU],
+	I.UOM1_Conversion,
+	I.UOM2_Conversion,
+	I.ReportingUOM
 from Items I WITH (NOLOCK)
 JOIN ItemCategories IC1 WITH (NOLOCK) ON I.CategoryID = IC1.CategoryID
 JOIN ItemCategories IC2 WITH (NOLOCK) ON IC2.CategoryID = IC1.ParentID

@@ -23,6 +23,7 @@ SELECT
 	B.Quantity,
 	B.SalePrice,
 	B.PurchasePrice,
+	B.PTS,
 	B.PTR,
 	B.GRN_ID,
 	B.Expiry,
@@ -30,7 +31,7 @@ SELECT
 	B.DamagesReason,
 	B.UOMQty,
 	B.CreationDate,
-	(Case When ISNULL(I.ReportingUOM, 0) = 0 THEN 1 ELSE I.ReportingUOM END) ReportingUOM,
+	(Case When ISNULL(I.UOM2_Conversion, 0) = 0 THEN 1 ELSE I.UOM2_Conversion END) ReportingUOM,
 	DATEDIFF(d, B.CreationDate, Getdate()) [Aging]
 from Items I WITH (NOLOCK)
 FULL OUTER JOIN Product_Mappings P WITH (NOLOCK) ON P.Product_Code = I.Product_Code
