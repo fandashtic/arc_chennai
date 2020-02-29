@@ -1,7 +1,7 @@
---exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569','%'
---exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569','301 -HPM -TUE'
---exec ARC_Get_CurrentOutstanding_Consolidation '%','301 -HPM -TUE'
---exec ARC_Get_CurrentOutstanding_Consolidation '%','%'
+--exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569','%', '2020-02-20 23:59:59'
+--exec ARC_Get_CurrentOutstanding_Consolidation 'AKASH.S.K-7010195569','301 -HPM -TUE', '2020-02-20 23:59:59'
+--exec ARC_Get_CurrentOutstanding_Consolidation '%','301 -HPM -TUE', '2020-02-20 23:59:59'
+--exec ARC_Get_CurrentOutstanding_Consolidation '%','%', '2020-02-20 23:59:59'
 --PreRequest SalesmanCategory, V_ARC_Customer_Mapping, fn_ARC_CustomerOutstandingDetails
 --Exec ARC_GetUnusedReportId
 --Exec ARC_Insert_ReportData 475, 'Current Outstanding Consolidation', 1, 'ARC_Get_CurrentOutstanding_Consolidation', 'Click to view Current Outstanding Consolidation', 53, 98, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
@@ -17,9 +17,10 @@ BEGIN
     DROP PROC [ARC_Get_CurrentOutstanding_Consolidation]
 END
 GO
-CREATE Proc ARC_Get_CurrentOutstanding_Consolidation(@Salesman Nvarchar(255) = '%', @Beat Nvarchar(255) = '%')
+CREATE Proc ARC_Get_CurrentOutstanding_Consolidation(@Salesman Nvarchar(255) = '%', @Beat Nvarchar(255) = '%', @ToDate DateTime)
 AS 
 BEGIN
+	SET DATEFORMAT DMY
 	Declare @CustomerIDs AS Table (Id int Identity(1,1), CustomerID Nvarchar(255), SalesManID Int, BeatId Int)
 	Declare @CustomerIdsFinal AS Table (Id int Identity(1,1), CustomerID Nvarchar(255), SalesManID Int, BeatId Int)
 	Declare @Salesmans AS Table (SalesmanId INT)
@@ -47,6 +48,7 @@ BEGIN
 		select DISTINCT CustomerId,SalesManID, BeatId 
 		FROM InvoiceAbstract B WITH (NOLOCK)
 		WHERE SalesmanId IN (SELECT DISTINCT SalesmanId FROM @Salesmans)
+		AND dbo.StripDateFromTime(B.InvoiceDate) <= @ToDate
 	
 		IF(ISNULL(@Beat, '') <> '%')
 		BEGIN
@@ -58,6 +60,7 @@ BEGIN
 		FROM InvoiceAbstract V WITH (NOLOCK)	
 		WHERE BeatID IN (SELECT DISTINCT BeatID FROM @Beats)	
 		AND CustomerID NOT IN (SELECT DISTINCT CustomerID FROM @CustomerIDs)
+		AND dbo.StripDateFromTime(V.InvoiceDate) <= @ToDate
 
 		IF EXISTS(SELECT TOP 1 1 FROM @Beats)
 		BEGIN
@@ -125,7 +128,7 @@ BEGIN
 		ChequeNumber,
 		ChequeDate,
 		ChequeOnHand
-		from dbo.fn_ARC_CustomerOutstandingDetails(@CustomerId, @SalesManID ,@BeatId) O 
+		from dbo.fn_ARC_CustomerOutstandingDetails(@CustomerId, @SalesManID ,@BeatId, @ToDate) O 
 		Where (Isnull(Balance, 0) > 0 OR ISNULL(ChequeOnHand, 0) > 0)
 
 		SET @I = @I + 1

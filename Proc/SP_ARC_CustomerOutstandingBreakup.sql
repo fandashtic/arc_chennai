@@ -1,7 +1,7 @@
---exec SP_ARC_CustomerOutstandingBreakup 'AKASH.S.K-7010195569','%'
---exec SP_ARC_CustomerOutstandingBreakup 'AKASH.S.K-7010195569','301- PVM &PL - SAT'
---exec SP_ARC_CustomerOutstandingBreakup '%','301- PVM &PL - SAT'
---exec SP_ARC_CustomerOutstandingBreakup '%','%'
+--exec SP_ARC_CustomerOutstandingBreakup 'AKASH.S.K-7010195569','%', '2020-02-20 23:59:59'
+--exec SP_ARC_CustomerOutstandingBreakup 'AKASH.S.K-7010195569','301- PVM &PL - SAT', '2020-02-01 23:59:59'
+--exec SP_ARC_CustomerOutstandingBreakup '%','301- PVM &PL - SAT', '2020-02-20 23:59:59'
+--exec SP_ARC_CustomerOutstandingBreakup '%','%', '2020-02-20 23:59:59'
 Exec ARC_Insert_ReportData 554, 'Customer Outstanding Breakup', 1, 'SP_ARC_CustomerOutstandingBreakup', 'Click to view Customer Outstanding Breakup', 53, 98, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
 GO
 --Exec ARC_GetUnusedReportId
@@ -10,9 +10,10 @@ BEGIN
     DROP PROC SP_ARC_CustomerOutstandingBreakup
 END
 GO
-Create Proc SP_ARC_CustomerOutstandingBreakup(@Salesman Nvarchar(255) = '%', @Beat Nvarchar(255) = '%')  
+Create Proc SP_ARC_CustomerOutstandingBreakup(@Salesman Nvarchar(255) = '%', @Beat Nvarchar(255) = '%', @ToDate DateTime = null)  
 AS  
 BEGIN 
+ SET DATEFORMAT DMY
  DECLARE @I INT
  Declare @SQL AS NVARCHAR(MAX)
  DECLARE @SRSCOUNT AS INT
@@ -29,6 +30,8 @@ BEGIN
 
  CREATE TABLE #SalesmanIDs ( SalesmanID int)
  CREATE TABLE #BeatIDs(BeatID int)
+
+ IF(ISNULL(@ToDate, '') = '') SET @ToDate = dbo.StripDateFromTime(Getdate())
 
  SELECT CustomerId, Company_Name INTO #Customer FROM Customer WITH (NOLOCK)
  SELECT SalesmanID, Salesman_Name INTO #Salesman FROM Salesman WITH (NOLOCK)
@@ -72,7 +75,9 @@ BEGIN
 --  DeliveryStatus   
  Into #Sales
  FROM V_ARC_Sale_ItemDetails  SA WITH (NOLOCK)
- where ISNULL(SA.Balance, 0) > 0
+ where 
+ dbo.StripDateFromTime(SA.InvoiceDate) <= @ToDate AND
+ ISNULL(SA.Balance, 0) > 0
 
  IF EXISTS(SELECT TOP 1 1 FROM #SalesmanIDs)
  BEGIn
@@ -102,6 +107,7 @@ BEGIN
   MAX(ISNULL(NetValue, 0) + ISNULL(RoundOffAmount, 0)) NetValue  
   INTO #SR
  FROM V_ARC_SaleReturn_ItemDetails WITH (NOLOCK)
+ WHERE dbo.StripDateFromTime(InvoiceDate) <= @ToDate
  GROUP BY  CustomerId, InvoiceDate, GSTFullDocID, ReferenceNumber, [Type]
 
  SELECT DISTINCT
@@ -111,6 +117,7 @@ BEGIN
   SUM(CollectionAmount) CollectionAmount
  INTO #CL
  FROM V_ARC_Collections WITH (NOLOCK) 
+ WHERE dbo.StripDateFromTime(CollectionDate) <= @ToDate
  GROUP BY CustomerId,CollectionDate,CollectionId,InvoiceReference
 
  DELETE C FROM #CL C WITH (NOLOCK)
@@ -124,6 +131,7 @@ BEGIN
  INTO #DR
  FROM V_ARC_DebitNote WITH (NOLOCK)
  WHERE DocRef LIKE 'I/%'
+ AND dbo.StripDateFromTime(DocumentDate) <= @ToDate
  GROUP BY CustomerId,DocumentReference,DocRef
 
  SELECT DISTINCT
@@ -134,13 +142,28 @@ BEGIN
  INTO #CR
  FROM V_ARC_Creditnote WITH (NOLOCK)
  WHERE DocRef LIKE 'I/%'
+ AND dbo.StripDateFromTime(DocumentDate) <= @ToDate
  GROUP BY CustomerId,DocumentReference,DocRef
+
+CREATE NONCLUSTERED INDEX [SR_SIN]
+ON [dbo].[#SR] ([Type])
+INCLUDE ([SaleReturnId],[InvoiceReference],[NetValue])
+
+CREATE NONCLUSTERED INDEX [SR_SI]
+ON [dbo].[#SR] ([Type])
+INCLUDE ([SaleReturnId],[InvoiceReference])
 
  CREATE TABLE #SRSCOUNTS(ID INT, [InvoiceReference] NVARCHAR(255), NetValue DECIMAL(18,6))
  CREATE TABLE #SRDCOUNTS(ID INT, [InvoiceReference] NVARCHAR(255), NetValue DECIMAL(18,6))
  CREATE TABLE #CRCOUNTS(ID INT, [InvoiceReference] NVARCHAR(255), NetValue DECIMAL(18,6))
  CREATE TABLE #DRCOUNTS(ID INT, [InvoiceReference] NVARCHAR(255), NetValue DECIMAL(18,6))
  CREATE TABLE #CLCOUNTS(ID INT, [InvoiceReference] NVARCHAR(255), NetValue DECIMAL(18,6))
+
+ CREATE NONCLUSTERED INDEX [SRC_IN] ON [dbo].#SRSCOUNTS ([ID]) INCLUDE ([InvoiceReference],[NetValue])
+ CREATE NONCLUSTERED INDEX [SRC_IN] ON [dbo].#SRDCOUNTS ([ID]) INCLUDE ([InvoiceReference],[NetValue])
+ CREATE NONCLUSTERED INDEX [SRC_IN] ON [dbo].#CRCOUNTS ([ID]) INCLUDE ([InvoiceReference],[NetValue])
+ CREATE NONCLUSTERED INDEX [SRC_IN] ON [dbo].#DRCOUNTS ([ID]) INCLUDE ([InvoiceReference],[NetValue])
+ CREATE NONCLUSTERED INDEX [SRC_IN] ON [dbo].#CLCOUNTS ([ID]) INCLUDE ([InvoiceReference],[NetValue])
 
  INSERT INTO #SRSCOUNTS SELECT ROW_NUMBER() OVER (PARTITION BY [InvoiceReference] ORDER BY [SaleReturnId]), [InvoiceReference],  SUM(NetValue) NetValue FROM #SR WITH (NOLOCK) WHERE [Type] = 'Salable' GROUP BY [InvoiceReference],[SaleReturnId]
  INSERT INTO #SRDCOUNTS SELECT ROW_NUMBER() OVER (PARTITION BY [InvoiceReference] ORDER BY [SaleReturnId]), [InvoiceReference],  SUM(NetValue) NetValue FROM #SR WITH (NOLOCK) WHERE [Type] = 'Damages' GROUP BY [InvoiceReference],[SaleReturnId]
