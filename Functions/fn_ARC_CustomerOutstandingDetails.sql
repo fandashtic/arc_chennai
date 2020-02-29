@@ -1,10 +1,10 @@
---select * FROM dbo.fn_ARC_CustomerOutstandingDetails('ARCBAK101',0,0) Where (Isnull(Balance, 0) > 0 OR ISNULL(ChequeOnHand, 0) > 0)
+--select * FROM dbo.fn_ARC_CustomerOutstandingDetails('ARCBAK101',0,0, '2020-02-20 23:59:59') Where (Isnull(Balance, 0) > 0 OR ISNULL(ChequeOnHand, 0) > 0)
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'fn_ARC_CustomerOutstandingDetails')
 BEGIN
     DROP FUNCTION fn_ARC_CustomerOutstandingDetails
 END
 GO
-Create Function fn_ARC_CustomerOutstandingDetails(@CustomerID nvarchar(15), @SalesmanID int, @BeatID int)  
+Create Function fn_ARC_CustomerOutstandingDetails(@CustomerID nvarchar(15), @SalesmanID int, @BeatID int, @ToDate DateTime)  
 Returns  
 	@tempCollection Table (SalesManId Int, BeatId Int, CustomerId Nvarchar(255), [Document ID] nvarchar(255),[DocumentDate] datetime,Netvalue decimal(18,6), Balance decimal(18,6),InvoiceID int,Type int,[Desc] nvarchar(500),AdditionalDiscount decimal(18,6),DocSerialType nvarchar(500),DisableEdit int,
 	ChequeNumber NVARCHAR(255) NULL, ChequeDate DATETIME NULL, ChequeOnHand decimal(18,6))
@@ -53,7 +53,9 @@ BEGIN
 	"Desc" = 'Sales Return',     
 	AdditionalDiscount, DocSerialType,Null, NULL,0
 	FROM invoiceabstract WITH (NOLOCK), VoucherPrefix WITH (NOLOCK)
-	where  ISNULL(Balance, 0) > 0 and   
+	where  
+	dbo.StripDateFromTime(invoiceabstract.InvoiceDate) <= @ToDate AND
+	ISNULL(Balance, 0) > 0 and   
 	InvoiceType in(4,5,6) and 
 	IsNull(Status, 0) & 128 = 0 and
 	invoiceabstract.InvoiceID Not In ( Select InvoiceID  FROM tbl_merp_DSOStransfer WITH (NOLOCK) ) and     
@@ -79,7 +81,9 @@ BEGIN
 	"Desc" = 'Sales Return',     
 	AdditionalDiscount, DocSerialType,Null, NULL,0
 	FROM invoiceabstract WITH (NOLOCK), VoucherPrefix WITH (NOLOCK), tbl_mERP_DSOSTransfer DSOSTrfr WITH (NOLOCK)
-	where ISNULL(Balance, 0) > 0  and  
+	where 
+	dbo.StripDateFromTime(invoiceabstract.InvoiceDate) <= @ToDate AND
+	ISNULL(Balance, 0) > 0  and  
 	InvoiceType in(4,5,6)      
 	and InvoiceAbstract.InvoiceID = DSOSTrfr.InvoiceID    
 	and IsNull(Status, 0) & 128 = 0 and
@@ -104,7 +108,9 @@ BEGIN
 	'Credit Note'  
 	end, 0, DocRef,Null, NULL,0
 	FROM CreditNote WITH (NOLOCK), VoucherPrefix WITH (NOLOCK)
-	where Balance > 0 and
+	where 
+	dbo.StripDateFromTime(CreditNote.DocumentDate) <= @ToDate AND
+	Balance > 0 and
 	CustomerID = @CustomerID and
 	VoucherPrefix.TranID = 'CREDIT NOTE'       
 	and CreditNote.Flag In (0,1)    
@@ -126,7 +132,9 @@ BEGIN
 	'Credit Note'  
 	end, 0, DocRef,Null, NULL,0
 	FROM CreditNote WITH (NOLOCK), VoucherPrefix WITH (NOLOCK)
-	where Balance > 0 and
+	where 
+	dbo.StripDateFromTime(CreditNote.DocumentDate) <= @ToDate AND
+	Balance > 0 and
 	CustomerID = @CustomerID and
 	VoucherPrefix.TranID = 'GIFT VOUCHER'   
 	and CreditNote.Flag =1   
@@ -140,7 +148,9 @@ BEGIN
 	"DocumentDate" = DocumentDate, Value, 
 	Balance, DocumentID, "Type" = 3, "Desc" = 'Collections', 0, Null,Null, NULL,0
 	FROM Collections WITH (NOLOCK), VoucherPrefix WITH (NOLOCK)
-	where Balance > 0 and
+	where 
+	dbo.StripDateFromTime(Collections.DocumentDate) <= @ToDate AND
+	Balance > 0 and
 	CustomerID = @CustomerID and IsNull(SalesmanID,0) In (Select SalesmanID FROM @TSalesman) and     
 	IsNull(BeatID,0) In (Select BeatID FROM @TBeat) and   
 	(IsNull(Status, 0) & 192) = 0 And -- Cancelled collections
@@ -182,10 +192,12 @@ BEGIN
 	AdditionalDiscount, DocSerialType,
 
 	(Select TOP 1 C.ChequeNumber FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where 
+	dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND
+	CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)) , 
 	(Select TOP 1 C.ChequeDate FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)) ,
 
 	(Select Case When MAx(isnull(C.Realised,0)) =3 Then     
@@ -193,11 +205,13 @@ BEGIN
 	Else     
 	(isnull(sum(AdjustedAmount),0)-isnull(sum(DocAdjustAmount),0))end     
 	FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)) 
 	
 	FROM InvoiceAbstract WITH (NOLOCK), VoucherPrefix WITH (NOLOCK), VoucherPrefix as InvPrefix WITH (NOLOCK), VoucherPrefix as RPrefix WITH (NOLOCK)
-	where ISNULL(InvoiceAbstract.Balance, 0) >= 0 And       
+	where 
+	dbo.StripDateFromTime(InvoiceAbstract.InvoiceDate) <= @ToDate AND 
+	ISNULL(InvoiceAbstract.Balance, 0) >= 0 And       
 	IsNull(Status, 0) & 128 = 0 and    
 	InvoiceType in (1, 3, 2) and
 	InvoiceAbstract.InvoiceID Not In ( Select InvoiceID FROM tbl_merp_DSOStransfer WITH (NOLOCK)) and     
@@ -241,10 +255,10 @@ BEGIN
 	end,  
 	AdditionalDiscount, DocSerialType,
 	(Select TOP 1 C.ChequeNumber FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)) , 
 	(Select TOP 1 C.ChequeDate FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  CD.DocumentID = InvoiceAbstract.InvoiceID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)) ,
 	(Select Case When MAx(isnull(C.Realised,0)) =3 Then     
 	(dbo.mERP_fn_getCollBalance_ITC(MAx(CD.DocumentID), MAx(CD.DocumentType)))     
@@ -256,7 +270,9 @@ BEGIN
   
 	FROM InvoiceAbstract WITH (NOLOCK), VoucherPrefix WITH (NOLOCK), VoucherPrefix as InvPrefix WITH (NOLOCK), VoucherPrefix as RPrefix WITH (NOLOCK)
 	, tbl_mERP_DSOSTransfer DSOSTrfr WITH (NOLOCK)
-	where   ISNULL(InvoiceAbstract.Balance, 0) >= 0 And    
+	where   
+	dbo.StripDateFromTime(InvoiceAbstract.InvoiceDate) <= @ToDate AND 
+	ISNULL(InvoiceAbstract.Balance, 0) >= 0 And    
 	InvoiceAbstract.InvoiceID = DSOSTrfr.InvoiceID and    
 	InvoiceType in (1, 3, 2) and
 	IsNull(Status, 0) & 128 = 0 and
@@ -287,11 +303,11 @@ BEGIN
 	end, 0, DocRef, 
 	
 	(Select C.ChequeNumber FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = DebitNote.debitID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  CD.DocumentID = DebitNote.debitID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)),
 
 	(Select C.ChequeDate FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = DebitNote.debitID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  CD.DocumentID = DebitNote.debitID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2)),
 
 	(Select Case When MAx(isnull(C.Realised,0)) =3 Then     
@@ -299,11 +315,13 @@ BEGIN
 	Else     
 	(isnull(sum(AdjustedAmount),0)-isnull(sum(DocAdjustAmount),0))end     
 	FROM Collections C WITH (NOLOCK), CollectionDetail CD WITH (NOLOCK)
-	Where CD.DocumentID = DebitNote.debitID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
+	Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  CD.DocumentID = DebitNote.debitID And C.customerID = @CustomerID And C.documentID = CD.CollectionID And isnull(C.status,0) & 192 = 0 and isnull(C.Paymentmode,0)=1 
 	and IsNull(c.Realised, 0) Not In (1, 2))  
 	
 	FROM DebitNote WITH (NOLOCK), VoucherPrefix WITH (NOLOCK)
-	where Balance >= 0 and 
+	where 
+	 dbo.StripDateFromTime(DebitNote.DocumentDate) <= @ToDate AND 
+	Balance >= 0 and 
 	Isnull(DebitNote.Status ,0) <> 192 And  
 	CustomerID = @CustomerID and 
 	VoucherPrefix.TranID = 'DEBIT NOTE')
@@ -315,11 +333,11 @@ BEGIN
 	While @@fetch_status = 0 
 	 BEGIN 
 	  Insert into @tempdebitID
-	  Select isnull(CD.DebitID,0) FROM ChequeCollDetails CD WITH (NOLOCK), collections C WITH (NOLOCK) Where C.CustomerID = @CustomerID And CD.DocumentID=@InvID  
+	  Select isnull(CD.DebitID,0) FROM ChequeCollDetails CD WITH (NOLOCK), collections C WITH (NOLOCK) Where dbo.StripDateFromTime(C.DocumentDate) <= @ToDate AND  C.CustomerID = @CustomerID And CD.DocumentID=@InvID  
 	  And C.DocumentID = CD.CollectionID and CD.DocumentType in (4) And isnull(C.Status,0) & 192 = 0              
-	  Update @tempCollection Set Balance = Balance + IsNull((Select sum(Balance) FROM debitnote WITH (NOLOCK) Where debitid in(select DebitID FROM @tempDebitID)),0), DisableEdit=1 Where InvoiceID = @InvID 
+	  Update @tempCollection Set Balance = Balance + IsNull((Select sum(Balance) FROM debitnote WITH (NOLOCK) Where dbo.StripDateFromTime(debitnote.DocumentDate) <= @ToDate AND  debitid in(select DebitID FROM @tempDebitID)),0), DisableEdit=1 Where InvoiceID = @InvID 
             
-	  If (Select isnull(PaymentDetails,0) FROM invoiceabstract WITH (NOLOCK) where Invoiceid = @InvID and isnull(PaymentMode,0) = 2 ) <> 0            
+	  If (Select isnull(PaymentDetails,0) FROM invoiceabstract WITH (NOLOCK) where dbo.StripDateFromTime(invoiceabstract.InvoiceDate) <= @ToDate AND Invoiceid = @InvID and isnull(PaymentMode,0) = 2 ) <> 0            
 	  Update @tempCollection Set [Desc]='Inv cheque Bounced' Where Invoiceid = @InvID and [Type] = 4            
             
 	  Delete FROM @tempCollection Where InvoiceID in(Select debitid FROM @tempdebitID)              
