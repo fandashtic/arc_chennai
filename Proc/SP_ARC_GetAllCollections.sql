@@ -10,7 +10,7 @@ GO
 Create Proc SP_ARC_GetAllCollections  
 AS  
 BEGIN 
-	SELECT 1,
+	SELECT
 		CO.DocumentID,
 		CO.CollectionDate,
 		CO.CustomerId,
@@ -35,8 +35,27 @@ BEGIN
 		CO.BankCharges,
 		CO.ExtraCollection,
 		CO.Adjustment
+	INTO #CL
 	FROM 
 	V_ARC_Collections CO WITH (NOLOCK) 
 	ORDER BY CO.DocumentID
+
+	SELECT DISTINCT
+		CustomerId,
+		GSTFullDocID [SaleReturnId],   
+		ReferenceNumber [InvoiceReference],
+		[Type],
+		MAX(ISNULL(NetValue, 0) + ISNULL(RoundOffAmount, 0)) NetValue  
+	INTO #SR
+	FROM V_ARC_SaleReturn_ItemDetails WITH (NOLOCK)
+	GROUP BY  CustomerId, InvoiceDate, GSTFullDocID, ReferenceNumber, [Type]
+
+	DELETE C FROM #CL C WITH (NOLOCK)
+	JOIN #SR S WITH (NOLOCK) ON S.InvoiceReference = C.InvoiceReference AND ISNULL(C.CollectionAmount, 0) = ISNULL(S.NetValue, 0)
+
+	SELECT 1, * FROM #CL WITH (NOLOCK)
+
+	DROP TABLE #CL
+	DROP TABLE #SR
 END
 GO

@@ -20,7 +20,7 @@ BEGIN
 		(SELECT TOP 1 Salesman_Name FROM Salesman WITH (NOLOCK) WHERE SalesmanID = S.SalesmanID) [SalesmanName],
 		S.BeatID,
 		(SELECT TOP 1 Description FROM Beat WITH (NOLOCK) WHERE BeatID = S.BeatID) [BeatName],
-		S.NetValue
+		ISNULL(S.NetValue, 0) + ISNULL(S.RoundOffAmount, 0) NetValue
 		--,SUM(S.TaxableValue) TaxableValue
 	FROM 
 	V_ARC_Sale_ItemDetails S WITH (NOLOCK) 

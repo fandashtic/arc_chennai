@@ -21,7 +21,7 @@ BEGIN
 		S.BeatID,
 		(SELECT TOP 1 Description FROM Beat WITH (NOLOCK) WHERE BeatID = S.BeatID) [BeatName],
 		S.[Type],
-		S.NetValue,
+		ISNULL(S.NetValue, 0) + ISNULL(S.RoundOffAmount, 0) NetValue,
 		S.ReferenceNumber [InvoiceReference]
 	FROM 
 	V_ARC_SaleReturn_ItemDetails S WITH (NOLOCK) 

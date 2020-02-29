@@ -56,6 +56,8 @@ BEGIN
  SELECT DISTINCT 
   SA.CustomerId,
   (select TOP 1 Company_Name FROM #Customer WITH (NOLOCK) WHERE CustomerId = SA.CustomerId) CustomerName,
+  dbo.fn_Arc_GetCustomerCategory(SA.CustomerId) [Customer CategoryGroup], 
+  dbo.fn_Arc_GetCustomerGroup(SA.CustomerId) [Group],
   SA.SalesmanID,
   (select TOP 1 Salesman_Name FROM #Salesman WITH (NOLOCK) WHERE SalesmanID = SA.SalesmanID) SalesmanName,
   SA.BeatID, 
@@ -63,8 +65,10 @@ BEGIN
   SA.InvoiceDate, 
   SA.DeliveryDate,
   SA.GSTFullDocID [InvoiceId], 
-  SA.NetValue  [InvoiceAmount],
-  SA.RoundOffAmount
+  ISNULL(SA.NetValue, 0) + ISNULL(SA.RoundOffAmount, 0) [InvoiceAmount], 
+  --SA.NetValue  [InvoiceAmount],
+  SA.Balance [Forum Outstanding]
+  --,SA.RoundOffAmount
 --  DeliveryStatus   
  Into #Sales
  FROM V_ARC_Sale_ItemDetails  SA WITH (NOLOCK)
@@ -95,7 +99,7 @@ BEGIN
   GSTFullDocID [SaleReturnId],   
   ReferenceNumber [InvoiceReference],
   [Type],
-  SUM(NetValue) NetValue
+  MAX(ISNULL(NetValue, 0) + ISNULL(RoundOffAmount, 0)) NetValue  
   INTO #SR
  FROM V_ARC_SaleReturn_ItemDetails WITH (NOLOCK)
  GROUP BY  CustomerId, InvoiceDate, GSTFullDocID, ReferenceNumber, [Type]
@@ -108,6 +112,9 @@ BEGIN
  INTO #CL
  FROM V_ARC_Collections WITH (NOLOCK) 
  GROUP BY CustomerId,CollectionDate,CollectionId,InvoiceReference
+
+ DELETE C FROM #CL C WITH (NOLOCK)
+ JOIN #SR S WITH (NOLOCK) ON S.InvoiceReference = C.InvoiceReference AND ISNULL(C.CollectionAmount, 0) = ISNULL(S.NetValue, 0)
 
  SELECT DISTINCT
   CustomerId,
@@ -253,13 +260,15 @@ BEGIN
  EXEC (@DRSQL)
  EXEC (@CLSQL)
 
- SET @SQL ='UPDATE #Sales SET [OutStanding] = (ISNULL([InvoiceAmount],0) + ISNULL(RoundOffAmount, 0)) - (ISNULL([SRS-TOTAL],0) + ISNULL([SRD-TOTAL],0) + ISNULL([CR-TOTAL],0) + ISNULL([CL-TOTAL],0)) + ISNULL([DR-TOTAL],0)' EXEC (@SQL)
+ SET @SQL ='UPDATE #Sales SET [OutStanding] = ISNULL([InvoiceAmount],0) - (ISNULL([SRS-TOTAL],0) + ISNULL([SRD-TOTAL],0) + ISNULL([CR-TOTAL],0) + ISNULL([CL-TOTAL],0)) + ISNULL([DR-TOTAL],0)' EXEC (@SQL)
  
  SET @SQL ='UPDATE #Sales SET [DueDaysBySales] = DATEDIFF(d, InvoiceDate, GETDATE()) WHERE ISNULL([OutStanding], 0) > 0' EXEC (@SQL)
  SET @SQL ='UPDATE #Sales SET [DueDaysByDelivery]= DATEDIFF(d, DeliveryDate, GETDATE()) WHERE ISNULL([OutStanding], 0) > 0' EXEC (@SQL)
    
  SET @SQL = ''
- SELECT 1 [Key], * FROM #Sales
+ SELECT 1 [Key], *,
+ (ISNULL([Forum Outstanding], 0) - ISNULL([OutStanding], 0)) [OutStanding Diff With Forum]
+ FROM #Sales WITH (NOLOCK)
 
  DROP TABLE #Sales
  DROP TABLE #SR
