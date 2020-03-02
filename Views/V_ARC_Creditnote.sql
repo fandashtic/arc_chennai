@@ -5,6 +5,7 @@ END
 GO
 Create View V_ARC_Creditnote
 AS
-SELECT DocumentDate, CustomerID, SalesmanID, DocRef, NoteValue, Balance, CreditID, Memo, DocumentReference 
+SELECT DocumentDate, CustomerID, SalesmanID, DocRef, NoteValue, Balance, CreditID, Memo
+,ISNULL(DocumentReference, 'CR' + cast(DocumentID as Varchar)) DocumentReference
 FROM Creditnote WITH (NOLOCk)
 Go

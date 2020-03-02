@@ -6,6 +6,7 @@ GO
 Create View V_ARC_DebitNote
 AS
 	SELECT 
+		DocumentID,
 		DocumentDate, 
 		CustomerID, 
 		VendorId,
@@ -16,7 +17,8 @@ AS
 		DebitID, 
 		OriginalDebitID, 
 		Memo, 
-		DocumentReference 
+		Flag,
+		ISNULL(DocumentReference, 'DR' + cast(DocumentID as Varchar)) DocumentReference
 	FROM DebitNote WITH (NOLOCk) 
-	WHERE isnull(DebitNote.Flag,0) <> 2
+	--WHERE isnull(DebitNote.Flag,0) <> 2
 Go

@@ -18,6 +18,7 @@ Select
 	IA.GoodsValue,
 	IA.GrossValue,
 	IA.NetValue,
+	IA.Balance,
 	IA.InvoiceType,	
 	IA.RoundOffAmount,
 	IA.DeliveryStatus,	
