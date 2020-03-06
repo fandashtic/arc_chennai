@@ -1,0 +1,13 @@
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\bin\Debug\netcoreapp2.1\RetailApi.deps.json
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\bin\Debug\netcoreapp2.1\RetailApi.runtimeconfig.json
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\bin\Debug\netcoreapp2.1\RetailApi.runtimeconfig.dev.json
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\bin\Debug\netcoreapp2.1\RetailApi.dll
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\bin\Debug\netcoreapp2.1\RetailApi.pdb
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.csproj.CoreCompileInputs.cache
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.RazorAssemblyInfo.cache
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.RazorAssemblyInfo.cs
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.AssemblyInfoInputs.cache
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.AssemblyInfo.cs
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.RazorTargetAssemblyInfo.cache
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.dll
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.pdb
