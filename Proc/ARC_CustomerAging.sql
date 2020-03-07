@@ -9,7 +9,10 @@ GO
 CREATE procedure [dbo].[ARC_CustomerAging]
 AS       
 BEGIN
-	select C.CustomerId, C.Company_Name [Customer Name], C.BillingAddress, C.ShippingAddress, C.Phone, ISNULL(C.GSTIN, '') [GST Number],  C.CreationDate [Date of Join]
+	select C.CustomerId, C.Company_Name [Customer Name], 
+	"Customer Category" = dbo.fn_Arc_GetCustomerCategory(C.CustomerId),
+	"Customer Groupd" = dbo.fn_Arc_GetCustomerGroup(C.CustomerId),
+	C.BillingAddress, C.ShippingAddress, C.Phone, ISNULL(C.GSTIN, '') [GST Number],  C.CreationDate [Date of Join]
 	,(Select Top 1 InvoiceDate From InvoiceAbstract WITH (NOLOCK) WHERe CustomerID = C.CustomerID AND InvoiceType in (1,3) AND (Status & 128) = 0 ORDER BY InvoiceID Desc) [Last Sales]
 	, (Select Top 1 InvoiceDate From InvoiceAbstract WITH (NOLOCK) WHERe CustomerID = C.CustomerID AND InvoiceType in (4) ORDER BY InvoiceID Desc) [Last SalesReturn]
 	Into #Customer
