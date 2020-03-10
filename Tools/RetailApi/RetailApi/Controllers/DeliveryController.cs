@@ -13,6 +13,13 @@ namespace RetailApi.Controllers
     [ApiController]
     public class DeliveryController : ControllerBase
     {
+        readonly IDeliveryReposidry deliveryReposidry;
+
+        public DeliveryController(IDeliveryReposidry _deliveryReposidry)
+        {
+            deliveryReposidry = _deliveryReposidry;
+        }
+
         [HttpGet("[action]/{Van}")]
         public ActionResult<string> GerSalesInvoiceByDateAndVan(string Van, [FromQuery] DateTime Todate)
         {
@@ -28,6 +35,25 @@ namespace RetailApi.Controllers
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        [HttpGet("getvanlist")]
+        public async Task<IActionResult> GetVanList()
+        {
+            try
+            {
+                var vans = await deliveryReposidry.GetVanList();
+                if (vans == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(vans);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
             }
         }
     }
