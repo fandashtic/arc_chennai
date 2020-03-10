@@ -101,7 +101,9 @@ class WareHouseSidebar extends Component {
                 </Dropdown.Menu>
               
               </Dropdown>
-              <button className="btn btn-success btn-block">New Delivery <i className="mdi mdi-plus"></i></button>
+              <Link to="/WareHouse/NewDelivery" className="btn btn-success btn-block">
+                New Delivery <i className="mdi mdi-plus"></i>                
+              </Link> 
             </div>
           </li>
           <li className={ this.isPathActive('/WareHouse/dashboard') ? 'nav-item active' : 'nav-item' }>
