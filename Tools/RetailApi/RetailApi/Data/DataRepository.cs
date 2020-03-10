@@ -5,20 +5,28 @@ using RetailApi.Models;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Configuration;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RetailApi.Data
 {
-    public class DataRepository
+    public class DataRepository : IDataRepository
     {
         SqlConnection connection = null;
-        string sqlConnectionString = @"data source=.;initial catalog=Minerva_ARC001_2019;user id=sa;password=athena;";
+        private readonly string sqlConnectionString = @"data source=.;initial catalog=Minerva_ARC001_2019;user id=sa;password=athena;";
+        ForumDbContext db;
 
-        private string DataTableToJSON(DataTable table)
+        public DataRepository()
         {
-            string jsonString = string.Empty;
-            jsonString = JsonConvert.SerializeObject(table);
-            return jsonString;
+           
         }
+
+        public DataRepository(ForumDbContext _db)
+        {
+            db = _db;
+        }
+        
 
         public string GetData(string procName, List<Parameters> parameters)
         {
@@ -66,7 +74,7 @@ namespace RetailApi.Data
                     connection.Close();
                 }
             }
-            return DataTableToJSON(dt);
+            return DataUtility.DataTableToJSON(dt);
         }
 
         public string GetData(string Command)
@@ -107,7 +115,9 @@ namespace RetailApi.Data
                     connection.Close();
                 }
             }
-            return DataTableToJSON(dt);
+            return DataUtility.DataTableToJSON(dt);
         }
+
+        
     }
 }
