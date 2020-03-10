@@ -1,0 +1,101 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace RetailApi.Models
+{
+    public partial class InvoiceAbstract
+    {
+        public int InvoiceId { get; set; }
+        public int InvoiceType { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public string CustomerId { get; set; }
+        public string BillingAddress { get; set; }
+        public string ShippingAddress { get; set; }
+        public string UserName { get; set; }
+        public decimal? GrossValue { get; set; }
+        public decimal? DiscountPercentage { get; set; }
+        public decimal? DiscountValue { get; set; }
+        public decimal? NetValue { get; set; }
+        public DateTime? CreationTime { get; set; }
+        public int? Status { get; set; }
+        public string TaxLocation { get; set; }
+        public string InvoiceReference { get; set; }
+        public string ReferenceNumber { get; set; }
+        public decimal? AdditionalDiscount { get; set; }
+        public decimal? Freight { get; set; }
+        public int? CreditTerm { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public int? DocumentId { get; set; }
+        public string NewReference { get; set; }
+        public string NewInvoiceReference { get; set; }
+        public int? OriginalInvoice { get; set; }
+        public int? ClientId { get; set; }
+        public string Memo1 { get; set; }
+        public string Memo2 { get; set; }
+        public string Memo3 { get; set; }
+        public string MemoLabel1 { get; set; }
+        public string MemoLabel2 { get; set; }
+        public string MemoLabel3 { get; set; }
+        public int? Flags { get; set; }
+        public int? ReferredBy { get; set; }
+        public decimal? Balance { get; set; }
+        public int? SalesmanId { get; set; }
+        public int? BeatId { get; set; }
+        public int? PaymentMode { get; set; }
+        public string PaymentDetails { get; set; }
+        public int? ReturnType { get; set; }
+        public int? Salesman2 { get; set; }
+        public string DocReference { get; set; }
+        public decimal? AmountRecd { get; set; }
+        public string AdjRef { get; set; }
+        public decimal? AdjustedAmount { get; set; }
+        public decimal? GoodsValue { get; set; }
+        public decimal? AddlDiscountValue { get; set; }
+        public decimal? TotalTaxSuffered { get; set; }
+        public decimal? TotalTaxApplicable { get; set; }
+        public decimal? ProductDiscount { get; set; }
+        public decimal? RoundOffAmount { get; set; }
+        public decimal? AdjustmentValue { get; set; }
+        public string Denominations { get; set; }
+        public string ServiceCharge { get; set; }
+        public string BranchCode { get; set; }
+        public string CformNo { get; set; }
+        public string DformNo { get; set; }
+        public DateTime? CancelDate { get; set; }
+        public string VanNumber { get; set; }
+        public int? TaxOnMrp { get; set; }
+        public string DocSerialType { get; set; }
+        public int? SchemeId { get; set; }
+        public decimal? SchemeDiscountPercentage { get; set; }
+        public decimal? SchemeDiscountAmount { get; set; }
+        public decimal? ClaimedAmount { get; set; }
+        public int? ClaimedAlready { get; set; }
+        public decimal? ExciseDuty { get; set; }
+        public int? DiscountBeforeExcise { get; set; }
+        public int? SalePriceBeforeExcise { get; set; }
+        public decimal? CustomerPoints { get; set; }
+        public decimal? VatTaxAmount { get; set; }
+        public string Sonumber { get; set; }
+        public string GroupId { get; set; }
+        public int? DeliveryStatus { get; set; }
+        public DateTime? DeliveryDate { get; set; }
+        public string InvoiceSchemeId { get; set; }
+        public string MultipleSchemeDetails { get; set; }
+        public int? TaxDiscountFlag { get; set; }
+        public int DstypeId { get; set; }
+        public int? AmendReasonId { get; set; }
+        public int? CancelReasonId { get; set; }
+        public string CancelUser { get; set; }
+        public int? FromStateCode { get; set; }
+        public int? ToStateCode { get; set; }
+        public string Gstin { get; set; }
+        public int? Gstflag { get; set; }
+        public int? GstdocId { get; set; }
+        public string GstfullDocId { get; set; }
+        public string AlternateCgcustomerName { get; set; }
+        public int? SrinvoiceId { get; set; }
+        public string SrhhReference { get; set; }
+        public DateTime? LastPrintOn { get; set; }
+        public int? PrintCount { get; set; }
+    }
+}

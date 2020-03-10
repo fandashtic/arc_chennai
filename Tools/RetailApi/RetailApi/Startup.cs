@@ -6,15 +6,20 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RetailApi.Data;
+using RetailApi.Models;
 
 namespace RetailApi
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -25,7 +30,18 @@ namespace RetailApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddDbContext<ForumDbContext>(item => item.UseSqlServer(Configuration.GetConnectionString("ForumConnectionString")));
+            AddWorkingRepository(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,8 +56,17 @@ namespace RetailApi
                 app.UseHsts();
             }
 
+            app.UseCors(MyAllowSpecificOrigins);
             app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+        private void AddWorkingRepository(IServiceCollection services)
+        {
+            services.AddScoped<IDataRepository, DataRepository>();
+            services.AddScoped<IAdministrationReposidry, AdministrationReposidry>();
+            services.AddScoped<IDeliveryReposidry, DeliveryReposidry>();
+            services.AddScoped<IParametersReposidry, ParametersReposidry>();
         }
     }
 }
