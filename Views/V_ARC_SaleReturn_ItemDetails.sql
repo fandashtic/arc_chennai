@@ -26,7 +26,7 @@ Select
 	IA.ReferenceNumber,
 	IA.SRInvoiceID,
 	IA.NewInvoiceReference,
-	case When (Status & 32) <> 0 Then 'Damages' Else 'Salable' End [Type],  
+	case When (Status & 32) <> 0 Then 'DnD' Else 'SR' End [Type],  
 	Case Status & 128 When 0 Then N'' Else 'Cancelled' End [Status], 
 	ID.Product_Code,
 	ID.Batch_Code,

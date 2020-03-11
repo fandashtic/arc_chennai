@@ -12,6 +12,7 @@ Select
 	IA.CustomerID,
 	IA.SalesmanID,
 	IA.BeatID,
+	IA.SONumber,
 	IA.GSTFullDocID,
 	IA.DocSerialType,
 	IA.DocReference,

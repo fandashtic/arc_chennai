@@ -25,6 +25,7 @@ Select DISTINCT
 	C.BankCode, 
 	C.BranchCode, 
 	C.ClearingAmount, 
+	C.UserName,
 	CCD.ChqStatus Realised, 
 	CCD.RealiseDate, 
 	C.BankCharges,
