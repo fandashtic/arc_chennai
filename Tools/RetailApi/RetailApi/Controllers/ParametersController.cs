@@ -20,6 +20,20 @@ namespace RetailApi.Controllers
             parametersReposidry = _parametersReposidry;
         }
 
+        [HttpGet("getparametersbyid/{paramId}")]
+        public async Task<IActionResult> GetParametersById(int paramId)
+        {
+            try
+            {
+                DataRepository dataRepository = new DataRepository();
+                return Ok(dataRepository.GetData("SELECT * FROM ParameterInfo WITH (NOLOCK) WHERE ParameterID = " + paramId.ToString() + " ORDER BY OrderBy ASC"));
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }        
+
         [HttpGet("getvanlist")]
         public async Task<IActionResult> GetVanList()
         {

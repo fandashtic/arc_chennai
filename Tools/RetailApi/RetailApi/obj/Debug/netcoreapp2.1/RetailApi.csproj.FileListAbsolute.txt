@@ -11,3 +11,4 @@ D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug
 D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.RazorTargetAssemblyInfo.cache
 D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.dll
 D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.pdb
+D:\Manickam\Confi\ARC\Production\arc_chennai\Tools\RetailApi\RetailApi\obj\Debug\netcoreapp2.1\RetailApi.csprojAssemblyReference.cache

@@ -10,7 +10,7 @@ namespace RetailApi
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
-            string baseAddress = "Http://http://localhost:3002/";
+            //string baseAddress = "Http://http://localhost:3002/";
             //using (WebApp.Start<Startup>(url: baseAddress))
             //{
             //    // Create HttpClient and make a request to api/values 
