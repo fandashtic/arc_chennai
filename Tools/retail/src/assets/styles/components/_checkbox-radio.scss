@@ -6,13 +6,15 @@
   margin-top: 10px;
   margin-bottom: 10px;
   padding-left: 0;
-
+  cursor: pointer;
+  
   .form-check-label {
     min-height: 18px;
     display: block;
     margin-left: 1.75rem;
     font-size: $default-font-size;
     line-height: 1.5;
+    cursor: pointer;
     .rtl & {
       margin-left: 0;
       margin-right: 1.75rem;

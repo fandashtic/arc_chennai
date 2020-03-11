@@ -44,7 +44,7 @@ class VanListCombo extends Component {
         return (
             <>
                 <select
-                    className="form-control form-control-sm"
+                    className="form-control form-control-sm btn40"
                     onChange={this.setSelectedVan}
                 >
                     <option value="">Select Van</option>

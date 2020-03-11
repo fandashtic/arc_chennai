@@ -12,8 +12,10 @@ class NewDelivery extends Component {
 
         this.state = {
             dateofsale: new Date(),
+            dateofdelivery: new Date(),
             selectedVan: "",
-            invoiceList: [], loading: true, title: 'Fandashtic'
+            selectedInvoiceList: [],
+            invoiceList: [], loading: null, title: 'Fandashtic'
         };
     }
 
@@ -21,11 +23,61 @@ class NewDelivery extends Component {
         document.title = this.state.title;
     };
 
-    handleChange = date => {
+    dateofsaleChange = date => {
         this.setState({
             dateofsale: date
         });
     };
+
+    dateofdeliveryChange = date => {
+        this.setState({
+            dateofdelivery: date
+        });
+    };
+
+    isChecked = (e) => {
+        var arr = [];
+        var curId = e.target.id;
+
+        if (this.state.selectedInvoiceList.length > 0) {
+            this.state.selectedInvoiceList.forEach(id => {
+                if (id !== curId) {
+                    arr.push(id);
+                }
+            });
+            if (e.target.checked === true) {
+                arr.push(curId);
+            }
+        }
+        else {
+            arr.push(curId);
+        }
+
+        this.setState({
+            selectedInvoiceList: arr
+        }, () => {
+
+        });
+    }
+
+    isCheckedAll = (e) => {
+        var arr = [];
+        var checked = e.target.checked;
+        if (this.state.invoiceList.length > 0) {
+            this.state.invoiceList.forEach(invoice => {
+                if (checked) {
+                    arr.push(invoice.InvoiceID);
+                }
+                document.getElementById(invoice.InvoiceID).checked = checked;
+            });
+        }
+
+        this.setState({
+            selectedInvoiceList: arr
+        }, () => {
+
+        });
+    }
 
     onUpdate = (val) => {
         this.setState({
@@ -44,6 +96,62 @@ class NewDelivery extends Component {
         });
     };
 
+    renderSelectAll = () => {
+        return (
+            this.state.invoiceList.length ?
+                <span className="form-check form-check-success" Style={"margin: 0px; left: 5px;"}>
+                    <label className="form-check-label">
+                        <input type="checkbox" className="form-check-input" onClick={this.isCheckedAll} />
+                        <i className="input-helper"></i>
+                    </label>
+                </span>
+                : null
+        )
+    }
+
+    renderDeliveryDate = () => {
+        return (
+            this.state.invoiceList.length ?
+                <div className="col-md-2 padding0">
+                    <Form.Group>
+                        <div className="col-sm-12 padding0">
+                            <DatePicker className="form-control w-100 height40" id="dateofsale"
+                                selected={this.state.dateofdelivery}
+                                onChange={this.dateofdeliveryChange}
+                            />
+                        </div>
+                    </Form.Group>
+                </div>
+                : null
+        )
+    }
+
+    renderSaveDelivery = () => {
+        return (
+            this.state.invoiceList.length && this.state.selectedInvoiceList.length > 0 ?
+                <div className="col-md-2 padding0">
+                    <Form.Group>
+                        <div>
+                            <button type="button" className="btn btn-success height40" onClick={this.CreateNewDelivery} >
+                                Save Delivery
+                                    </button>
+                        </div>
+                    </Form.Group>
+                </div>
+                : null
+        )
+    }
+
+    CreateNewDelivery = () => {
+        var deliveryData = {};
+        var dateofdelivery = this.state.dateofdelivery.toLocaleDateString().replace('/', '-').replace('/', '-');
+        deliveryData.InvoiceIds = this.state.selectedInvoiceList;
+        deliveryData.deliveryDate = dateofdelivery;        
+        axios.get('delivery/updateDelivery', deliveryData).then(result => {
+            
+        });
+    };
+
     renderTable = (state) => {
         return (
             <div className="table table-hover">
@@ -53,26 +161,33 @@ class NewDelivery extends Component {
     }
 
     renderRows = (state) => {
-        debugger;
         let rows = state.invoiceList.map((invoice, i) => (
-            <tr key={i+1}>
-                <td>{i+1}</td>
+            <tr key={i + 1}>
+                <td>
+                    <div className="form-check form-check-{invoice.DeliveryStatus !== 2 ? 'danger' : 'success'}">
+                        <label className="form-check-label">
+                            <input key={invoice.InvoiceID} id={invoice.InvoiceID} type="checkbox" className="form-check-input" onClick={this.isChecked} />
+                            <i className="input-helper"></i>
+                        </label>
+                    </div>
+                </td>
+                <td>{i + 1}</td>
                 <td>{invoice.SalesmanName}</td>
                 <td>{invoice.Beat}</td>
                 <td>{invoice.CustomerName}</td>
                 <td>{invoice.GSTFullDocID}</td>
-                <td>{invoice.NetValue}</td>                
-                <td><label className="badge badge-danger">{invoice.DeliveryStatus === 1 ? 'Pending' : 'Completed'}</label></td>
+                <td>{invoice.NetValue}</td>
+                <td><label className="badge badge-danger">{invoice.DeliveryStatus !== 2 ? 'Pending' : 'Completed'}</label></td>
             </tr>
         ))
         return rows;
-        
     }
 
+
     renderTablePage = () => {
-        if (this.state.loading) {
+        if (this.state.loading === true) {
             return (
-                <div>
+                <div className="main-spinner-wrapper">
                     Loader
                 </div>
             );
@@ -83,7 +198,10 @@ class NewDelivery extends Component {
                     <table className="table table-hover">
                         <thead>
                             <tr>
-                                <th>S.No</th>                                
+                                <th Style={"padding: 10px;"}>
+                                   {this.renderSelectAll()}
+                                </th>
+                                <th>S.No</th>
                                 <th>SalesMan</th>
                                 <th>Beat</th>
                                 <th>Customer</th>
@@ -105,34 +223,36 @@ class NewDelivery extends Component {
 
     render() {
         return (
-            <div>               
+            <div>
                 <div className="row">
-                    <div className="col-md-4">
-                        <Form.Group>                            
-                            <div className="col-sm-9">
+                    <div className="col-md-4 padding0">
+                        <Form.Group>
+                            <div className="col-sm-11 padding0 height40">
                                 <VanListCombo onUpdate={this.onUpdate} />
                             </div>
                         </Form.Group>
                     </div>
-                    <div className="col-md-4">
-                        <Form.Group>                            
-                            <div className="col-sm-9">
-                                <DatePicker className="form-control w-100" id="dateofsale"
+                    <div className="col-md-2 padding0">
+                        <Form.Group>
+                            <div className="col-sm-12 padding0">
+                                <DatePicker className="form-control w-100 height40" id="dateofsale"
                                     selected={this.state.dateofsale}
-                                    onChange={this.handleChange}
+                                    onChange={this.dateofsaleChange}
                                 />
                             </div>
                         </Form.Group>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-2 padding0">
                         <Form.Group>
                             <div>
-                                <button type="button" className="btn btn-info" onClick={this.getSalesByDateAndVan} >Get Sales Invoices</button>
+                                <button type="button" className="btn btn-info height40" onClick={this.getSalesByDateAndVan} >Get Sales Invoices</button>
                             </div>
                         </Form.Group>
                     </div>
+                    {this.renderDeliveryDate()}                    
+                    {this.renderSaveDelivery()}
                 </div>
-                <div>
+                <div>                
                     {this.renderTablePage()}
                 </div>
             </div>

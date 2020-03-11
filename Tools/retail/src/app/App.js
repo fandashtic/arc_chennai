@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import './App.scss';
+import './shared/base.css';
 import AppRoutes from './AppRoutes';
 import Navbar from './shared/Navbar';
 import WareHouseSidebar from './shared/WareHouseSidebar';

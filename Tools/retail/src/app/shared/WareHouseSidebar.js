@@ -133,7 +133,7 @@ class WareHouseSidebar extends Component {
             </Link>
           </li>
           <li className={ this.isPathActive('/tables') ? 'nav-item active' : 'nav-item' }>
-            <Link className="nav-link" to="/tables/basic-table">
+            <Link className="nav-link" to="/WareHouse/DynoReport">
               <i className="mdi mdi-table-large menu-icon"></i>
               <span className="menu-title">Reports</span>
             </Link>
