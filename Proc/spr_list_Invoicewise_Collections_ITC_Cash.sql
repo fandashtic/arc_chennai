@@ -1,5 +1,5 @@
 --Exec ARC_Insert_ReportData 374, 'Collections Report', 1, ' spr_list_Invoicewise_Collections_ITC_Cash', 'View InvoiceWise Collections', 151, 76, 1, 2, 0, 0, 3, 0, 0, 0, 252, 'No'
---exec spr_list_Invoicewise_Collections_ITC_Cash '%','2020-02-17 00:00:00','2020-02-19 23:59:59','Cash'
+--exec spr_list_Invoicewise_Collections_ITC_Cash '%','2020-02-17 00:00:00','2020-02-19 23:59:59','%'
 IF EXISTS(SELECT Top 1 1 FROM sys.objects WHERE Name = N'spr_list_Invoicewise_Collections_ITC_Cash')
 BEGIN
 	DROP PROC [spr_list_Invoicewise_Collections_ITC_Cash]
@@ -28,13 +28,18 @@ SELECT 1,
 		CO.CollectionDate,
 		CO.CustomerId,
 		(SELECT TOP 1 Company_Name FROM Customer WITH (NOLOCK) WHERE CustomerID = CO.CustomerId) [CustomerName], 
+		dbo.fn_Arc_GetCustomerCategory(CO.CustomerId) [Customer Category Group],
 		CO.SalesmanID,
 		Case CO.SalesmanID When 0 then 'Others' Else (Select Salesman_Name from Salesman WITH (NOLOCK) where SalesmanID = CO.SalesmanID) End [SalesmanName],
+		dbo.fn_Arc_GetSalesmanCategory(CO.SalesmanID) [Salesman Category],
 		CO.BeatID,
 		Case CO.BeatID When 0 then 'Others' Else (Select Description from Beat WITH (NOLOCK) where BeatID = CO.BeatID) End [BeatName],
 		CO.CollectionId,
 		CO.CollectionAmount,
+		CO.UserName [Collection UserName],
 		CO.InvoiceReference,
+		Case ISNULL(CO.InvoiceReference, '') When '' then '' Else (Select Top 1 InvoiceDate from InvoiceAbstract WITH (NOLOCK) where GSTFullDocID = CO.InvoiceReference) End [Invoice Date],
+		Case ISNULL(CO.InvoiceReference, '') When '' then '' Else (Select Top 1 ISNULL(NetValue, 0) + ISNULL(RoundOffAmount, 0) from InvoiceAbstract WITH (NOLOCK) where GSTFullDocID = CO.InvoiceReference) End [Invoice Amount],
 		((case cast(CO.Paymentmode as nvarchar) 
 		 when '0' then  'Cash'           
 		 when '1'  then 'Cheque'             
