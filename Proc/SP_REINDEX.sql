@@ -18,6 +18,7 @@ BEGIN
  begin
 	set @TableName = (select top 1 TableName from @Table where id = @i)
 	set @sql = 'ALTER INDEX ALL ON '+ @TableName +' REBUILD'
+	Exec (@sql)
 	DBCC DBREINDEX(@TableName, '', 80)
 	set @i = @i + 1
  end
