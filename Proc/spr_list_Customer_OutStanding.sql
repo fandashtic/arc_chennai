@@ -9,6 +9,7 @@ GO
 Create procedure spr_list_Customer_OutStanding( @Customer nvarchar(2550),  @FromDate datetime, @ToDate datetime)                    
 As     
 BEGIN
+	SEt Dateformat dmy
 	Declare @Delimeter as Char(1)                      
 	Set @Delimeter=Char(15)                      
   

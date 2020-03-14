@@ -83,8 +83,8 @@ BEGIN
  WHERE dbo.StripDateFromTime(InvoiceDate) <= @ToDate
  GROUP BY  CustomerId, InvoiceDate, GSTFullDocID, ReferenceNumber, [Type]
 
- DELETE C FROM #CL C WITH (NOLOCK)
- JOIN #SR S WITH (NOLOCK) ON S.InvoiceReference = C.InvoiceReference AND ISNULL(C.CollectionAmount, 0) = ISNULL(S.NetValue, 0)
+ --DELETE C FROM #CL C WITH (NOLOCK)
+ --JOIN #SR S WITH (NOLOCK) ON S.InvoiceReference = C.InvoiceReference AND ISNULL(C.CollectionAmount, 0) = ISNULL(S.NetValue, 0)
 
  SELECT DISTINCT
   SalesmanID,
@@ -132,8 +132,8 @@ BEGIN
  Into #Sales
  FROM V_ARC_Sale_ItemDetails  SA WITH (NOLOCK)
  where 
- dbo.StripDateFromTime(SA.InvoiceDate) <= @ToDate AND
- ISNULL(SA.Balance, 0) > 0
+ dbo.StripDateFromTime(SA.InvoiceDate) <= @ToDate
+ --AND ISNULL(SA.Balance, 0) > 0 
 
  INSERT INTO #Sales
   SELECT DISTINCT 
@@ -410,9 +410,11 @@ BEGIN
    
  SET @SQL = ''
  SELECT 1 [Key], *,
+ dbo.fn_Arc_GetCustomerCategory(CustomerId) [Customer CategoryGroup], 
+ dbo.fn_Arc_GetSalesmanCategory(SalesmanID) [SalesManCategory],
  (ISNULL([Forum Outstanding], 0) - ISNULL([OutStanding], 0)) [OutStanding Diff With Forum]
  FROM #Sales WITH (NOLOCK)
- WHERE (ISNULL([Forum Outstanding], 0) + ISNULL([OutStanding], 0)) <> 0
+ WHERE ISNULL([OutStanding], 0) > 0
 
  DROP TABLE #Sales
  DROP TABLE #SR
