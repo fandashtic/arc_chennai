@@ -34,7 +34,9 @@ BEGIN
   ,(SELECT TOP 1 SUM(SA.SalePrice) FROM #V_ARC_SaleReturn_ItemDetails SA  WITH (NOLOCK) WHERE SA.Product_Code = I.Product_Code AND SA.Batch_Code = I.Batch_Code) [SalesReturnPrice]  
   
  INTO #Temp  
- from V_ARC_Items_BatchDetails I WITH (NOLOCK)   SELECT 1, * FROM #Temp  WITH (NOLOCK)   WHERE   ISNULL(PurchaseQuantity, 0) > 0 OR  
+ from V_ARC_Items_BatchDetails I WITH (NOLOCK)   
+ 
+ SELECT 1, * FROM #Temp  WITH (NOLOCK)   WHERE   ISNULL(PurchaseQuantity, 0) > 0 OR  
  ISNULL(PurchasePrice, 0) > 0 OR   
  ISNULL(SalesQuantity, 0) > 0 OR  
  ISNULL(SalesPurchasePrice, 0) > 0 OR   
