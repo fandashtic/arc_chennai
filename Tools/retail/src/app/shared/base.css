@@ -5,3 +5,17 @@
 .height40{
     height: 40px;
 }
+.padding0 .table th, .table td{
+    padding: 0px;
+}
+.width100{
+    width: 100px !important;
+}
+
+.pleft10{
+    padding-left: 10px !important;
+}
+
+.pleft15{
+    padding-left: 15px !important;
+}
