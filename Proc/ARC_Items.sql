@@ -8,6 +8,7 @@ CREATE procedure [dbo].ARC_Items
 As
 Begin
 	SELECT 1, V.* 
+	, ISNULL(V.UOM1_Conversion, 0) / (CASE WHEN ISNULL(V.UOM2_Conversion, 0) = 0 THEN 1 ELSE ISNULL(V.UOM2_Conversion, 0) END) [Packs in CFC]
 	--,(SELECT SUM(Quantity) FROM Batch_Products WITH (NOLOCK) Where ISNULL(Damage, 0) = 0 AND Product_Code = V.Product_Code Group By Product_Code) [Salable On Hand Stock]
 	--,(SELECT SUM(Quantity) FROM Batch_Products WITH (NOLOCK) Where ISNULL(Damage, 0) = 0 AND Product_Code = V.Product_Code Group By Product_Code) [Damage On Hand Stock]
 	,(select BillDate from BillAbstract With (Nolock) Where BillID = (select top 1 BillID from BillDetail With (NOlock) Where Product_Code = V.Product_Code order By BillID Desc)) [Last Purchase Date]

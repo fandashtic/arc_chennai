@@ -29,12 +29,13 @@ Begin
 	FreeQuantity Decimal(18,6),
 	SalableQuantity Decimal(18,6),
 	UOM1 Decimal(18,6),
-	UOM2 Decimal(18,6))
+	UOM2 Decimal(18,6),
+	MRP  Decimal(18,6))
 
 	SELECT IA.DocSerialType ,B.BrandName,ID.Product_Code,I.ProductName,
 	(CASE WHEN ISNULL(ID.SalePrice , 0) = 0 THEN ID.Quantity ELSE 0 END) FreeQuantity,
 	CASE WHEN ISNULL(ID.SalePrice, 0) = 0 THEN 0 ELSE ID.Quantity END SalableQuantity,
-	I.UOM1_Conversion, I.UOM2_Conversion
+	I.UOM1_Conversion, I.UOM2_Conversion, I.MRP
 	INTO #Data
 	FROM InvoiceDetail ID WITH (NOLOCK),
 	Items I WITH (NOLOCK),
@@ -53,13 +54,13 @@ Begin
 	SELECT DocSerialType ,BrandName,Product_Code,ProductName,
 	SUM(FreeQuantity) FreeQuantity,
 	SUM(SalableQuantity) SalableQuantity,
-	UOM1_Conversion, UOM2_Conversion
+	UOM1_Conversion, UOM2_Conversion, MRP
 	FROM #Data WITH (NOLOCK)
-	GROUP BY BrandName,Product_Code, ProductName,DocSerialType ,UOM1_Conversion, UOM2_Conversion
+	GROUP BY BrandName,Product_Code, ProductName,DocSerialType ,UOM1_Conversion, UOM2_Conversion, MRP
 	order by BrandName
 
 
-	select Van,Category,Product_Code ItemCode, ProductName ItemName, 
+	select Van,Category,Product_Code ItemCode, ProductName ItemName, MRP,
 	ISNULL(CAST((Case When (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) = 0 Then Null Else (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int)) End)AS INT), 0) [Free CFC],	
 	ISNULL(CAST(((FreeQuantity - (Cast((cast(FreeQuantity as Decimal(18,6)) / Cast(UOM1 as Decimal(18,6))) as Int) * cast(UOM1 as Decimal(18,6)))) / UOM2) AS INT), 0) [Free Loose Pack] ,
 	ISNULL(CAST(CAST((ISNULL(FreeQuantity, 0) / ISNULL(UOM2, 1)) as Decimal(18,6))AS INT), 0) [Total Free Packs],
@@ -82,7 +83,7 @@ Begin
 	SELECt * FROM (
 	SELECt 1 ID, * FROM #WithTotals
 	UNION ALL
-	SELECT 2 ID, '','','','',	
+	SELECT 2 ID, '','','','', 0,	
 	ISNULL(SUM([Free CFC]), 0), 
 	ISNULL(SUM([Free Loose Pack]), 0), 
 	ISNULL(SUM([Total Free Packs]), 0), 
