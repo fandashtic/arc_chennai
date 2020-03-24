@@ -20,14 +20,14 @@ namespace RetailApi.Controllers
             deliveryReposidry = _deliveryReposidry;
         }
 
-        [HttpGet("[action]/{Van}")]
+        [HttpGet("[action]/{Van?}")]
         public ActionResult<string> GerSalesInvoiceByDateAndVan(string Van, [FromQuery] DateTime Todate)
         {
             try
             {
                 List<Parameters> parameters = new List<Parameters>();
                 parameters.Add(new Parameters() { ParameterName = "TODATE", ParameterValue = Todate.ToString("dd-MMM-yyyy") });
-                parameters.Add(new Parameters() { ParameterName = "Van", ParameterValue = Van });
+                parameters.Add(new Parameters() { ParameterName = "Van", ParameterValue = DataUtility.ParamValue(Van) });
                 DataRepository reportDataRepository = new DataRepository();
                 string str = reportDataRepository.GetData("Sp_arc_get_SalesFormDelivery", parameters);
                 return str;
@@ -54,6 +54,24 @@ namespace RetailApi.Controllers
             catch (Exception)
             {
                 return BadRequest();
+            }
+        }
+
+        [HttpPost("updatedelivery")]
+        public IActionResult UpdateDelivery(UpdateDeliveryData deliveryData)
+        {
+            try
+            {
+                //List<Parameters> parameters = new List<Parameters>();
+                //parameters.Add(new Parameters() { ParameterName = "TODATE", ParameterValue = Todate.ToString("dd-MMM-yyyy") });
+                //parameters.Add(new Parameters() { ParameterName = "Van", ParameterValue = DataUtility.ParamValue(Van) });
+                //DataRepository reportDataRepository = new DataRepository();
+                //string str = reportDataRepository.GetData("Sp_arc_get_SalesFormDelivery", parameters);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

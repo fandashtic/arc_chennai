@@ -15,5 +15,17 @@ namespace RetailApi
             jsonString = JsonConvert.SerializeObject(table);
             return jsonString;
         }
+
+        public static string ParamValue(string param)
+        {
+            if (!string.IsNullOrEmpty(param))
+            {
+                return param;
+            }
+            else
+            {
+                return "%";
+            }
+        }
     }
 }

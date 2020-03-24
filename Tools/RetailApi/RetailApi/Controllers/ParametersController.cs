@@ -53,6 +53,25 @@ namespace RetailApi.Controllers
             }
         }
 
+        [HttpGet("getvehicletype")]
+        public async Task<IActionResult> GetVehicleTypes()
+        {
+            try
+            {
+                var vehicleTypes = await parametersReposidry.GetVehicleTypes();
+                if (vehicleTypes == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(vehicleTypes);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpGet("getsalesmanlist")]
         public async Task<IActionResult> GetSalesManList()
         {

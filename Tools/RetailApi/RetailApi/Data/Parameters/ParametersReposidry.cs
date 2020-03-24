@@ -109,6 +109,34 @@ namespace RetailApi.Data
             return null;
         }
 
+        public async Task<List<string>> GetVehicleTypes()
+        {
+            if (db != null)
+            {
+                List<string> VehicleTypes = new List<string>();
+                VehicleTypes.Add("SELF");
+                VehicleTypes.Add("TN01AJ8915");
+                VehicleTypes.Add("TN05AU2342");
+                VehicleTypes.Add("TN12Q5058");
+                VehicleTypes.Add("TN22DC1397");
+                VehicleTypes.Add("TN58AR7296");
+                VehicleTypes.Add("TN66AB9203");
+                VehicleTypes.Add("TN66AB9208");
+                VehicleTypes.Add("TN66AB9219");
+                VehicleTypes.Add("TN66AB9220");
+                VehicleTypes.Add("TN66AB9235");
+                VehicleTypes.Add("TN66AB9256");
+                VehicleTypes.Add("TN66AB9265");
+                VehicleTypes.Add("TN66AB9277");
+                VehicleTypes.Add("TN66AB9280");
+                VehicleTypes.Add("TN66Y5494");
+                VehicleTypes.Add("TN99J5661");
+                return VehicleTypes; // db.VehicleTypes.Where(w => !string.IsNullOrEmpty(w.VehicleType)).Select(i => i.VehicleType).Distinct().ToListAsync();
+            }
+
+            return null;
+        }
+
         public async Task<List<KeyValue>> GetItemsList()
         {
             if (db != null)

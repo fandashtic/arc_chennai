@@ -13,6 +13,7 @@ namespace RetailApi.Data
         Task<List<KeyValue>> GetSalesManList();
         Task<List<KeyValue>> GetCustomerList(int salesmanId = 0, int beatId = 0);
         Task<List<string>> GetVanList();
+        Task<List<string>> GetVehicleTypes();
         Task<List<KeyValue>> GetItemsList();
 
     }
