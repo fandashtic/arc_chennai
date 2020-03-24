@@ -1,4 +1,4 @@
- --Select * from V_ARC_Sale_ItemDetails Where dbo.StripTimeFromDate(InvoiceDate) Between '01-Jan-2020' And '01-Jan-2020'
+ --Select * from V_ARC_Sale_ItemDetails Where dbo.StripTimeFromDate(InvoiceDate) Between '2020-03-17 00:00:00' and '2020-03-17 23:59:59' AND CustomerID = 'ARC-CIG-033'
  IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'V_ARC_Sale_ItemDetails')
 BEGIN
     DROP VIEW V_ARC_Sale_ItemDetails
@@ -24,7 +24,17 @@ Select
 	IA.RoundOffAmount,
 	IA.DeliveryStatus,	
 	IA.DeliveryDate,
-	ia.Balance,
+	IA.Balance,
+	"Weight" = 
+    IsNull(
+     (Select 
+   				Sum(IsNull(IDE.Quantity,0) * IsNull(ConversionFactor,0))
+   			From 
+   				InvoiceDetail IDE WITH (NOLOCK), Items WITH (NOLOCK)   
+   			Where 
+   					IDE.InvoiceID = IA.InvoiceID 
+    				And IDE.Product_Code = Items.Product_Code)
+     ,0),
 	ID.Product_Code,
 	ID.Batch_Code,
 	ID.Batch_Number,
