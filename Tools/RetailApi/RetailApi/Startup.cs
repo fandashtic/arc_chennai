@@ -67,6 +67,7 @@ namespace RetailApi
             services.AddScoped<IAdministrationReposidry, AdministrationReposidry>();
             services.AddScoped<IDeliveryReposidry, DeliveryReposidry>();
             services.AddScoped<IParametersReposidry, ParametersReposidry>();
+            services.AddScoped<IReportReposidry, ReportReposidry>();
         }
     }
 }
