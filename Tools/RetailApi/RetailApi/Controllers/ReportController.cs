@@ -14,12 +14,12 @@ namespace RetailApi.Controllers
     public class ReportController : ControllerBase
     {
         readonly IReportReposidry reportReposidry;
-
+       
         public ReportController(IReportReposidry _reportReposidry)
         {
-            reportReposidry = _reportReposidry;
+            reportReposidry = _reportReposidry;            
         }
-        
+
         [HttpGet("getallreports")]
         public async Task<IActionResult> GetAllReports()
         {
@@ -71,6 +71,25 @@ namespace RetailApi.Controllers
             {
                 List<ReportDataModel> reportDataModels = new List<ReportDataModel>();
                 var reports = await reportReposidry.GetReportsById(reportId);
+                if (reports == null)
+                {
+                    return NotFound();
+                }
+                return Ok(reports);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("getreportsdata")]
+        public async Task<IActionResult> GetReportsData(ReportsDataModel reportsDataModel)
+        {
+            try
+            {
+                DataRepository dataRepository = new DataRepository();
+                var reports = await dataRepository.GetData(reportsDataModel.ProcedureName, reportsDataModel.Parameters);
                 if (reports == null)
                 {
                     return NotFound();

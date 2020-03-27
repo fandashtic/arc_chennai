@@ -29,8 +29,8 @@ namespace RetailApi.Controllers
                 parameters.Add(new Parameters() { ParameterName = "TODATE", ParameterValue = Todate.ToString("dd-MMM-yyyy") });
                 parameters.Add(new Parameters() { ParameterName = "Van", ParameterValue = DataUtility.ParamValue(Van) });
                 DataRepository reportDataRepository = new DataRepository();
-                string str = reportDataRepository.GetData("Sp_arc_get_SalesFormDelivery", parameters);
-                return str;
+                //string str = reportDataRepository.GetData("Sp_arc_get_SalesFormDelivery", parameters);
+                return "";
             }
             catch (Exception ex)
             {
