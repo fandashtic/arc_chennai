@@ -28,7 +28,7 @@ namespace RetailApi.Data
         }
         
 
-        public string GetData(string procName, List<Parameters> parameters)
+        public async Task<string> GetData(string procName, List<Parameters> parameters)
         {
             DataTable dt = new DataTable();
             try
