@@ -27,7 +27,7 @@ class VanListCombo extends Component {
         this.setState({
             selectedVan: e.target.value
         }, () => {
-            this.props.onUpdate(this.state.selectedVan);
+            //this.props.onUpdate(this.state.selectedVan);
             //console.log(this.state.selectedVan);
         });
     };
@@ -44,8 +44,10 @@ class VanListCombo extends Component {
         return (
             <>
                 <select
-                    className="form-control form-control-sm btn40"
+                    className="form-control form-control-sm height40 w163"
                     onChange={this.setSelectedVan}
+                    value= {this.selectedVan}
+                    id={this.props.id}
                 >
                     <option value="">Select Van</option>
                     {options}
