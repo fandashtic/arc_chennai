@@ -9,5 +9,6 @@ namespace RetailApi.Models
     {
         public string ParameterName { get; set; }
         public string ParameterValue { get; set; }
+        public string AutoComplete { get; set; }
     }
 }

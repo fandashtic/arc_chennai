@@ -15,6 +15,7 @@ namespace RetailApi.Data
         Task<List<string>> GetVanList();
         Task<List<string>> GetVehicleTypes();
         Task<List<KeyValue>> GetItemsList();
+        Task<string> GetQueryParams(string querry);
 
     }
 }

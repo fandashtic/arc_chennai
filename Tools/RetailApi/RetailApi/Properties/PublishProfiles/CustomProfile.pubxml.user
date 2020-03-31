@@ -8,4 +8,324 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <_PublishTargetUrl>C:\inetpub\wwwroot\fandashtic_retail</_PublishTargetUrl>
   </PropertyGroup>
+  <ItemGroup>
+    <File Include="Models/AccountGroup.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/AccountsMaster.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/AdjustmentReturnAbstractReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Apvabstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Areas.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Bank.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/BankAccountPaymentModes.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/BankMaster.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/BatchProducts.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Beat.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/BillAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/BranchMaster.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Brand.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/BusinessNature.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CashCustomerRec.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CatalogAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/City.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ClaimsNote.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ClientInformation.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CollectionsReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Comversion.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ConversionTable.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Country.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CreditNote.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CreditTerm.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Customer.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CustomerCategory.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CustomerChannel.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CustomerHierarchy.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/CustomerSegment.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/DebitNote.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Deposits.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Disclaimer.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/DispatchAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Doctor.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/DocumentNumbers.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/FormatInfo.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ForumDbContext.cs">
+      <publishTime>03/23/2020 17:31:15</publishTime>
+    </File>
+    <File Include="Models/Grnabstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Groups.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Gstcomponent.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/InvoiceAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/InvoiceAbstractReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ItemCategories.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Itemhierarchy.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Items.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ItemSchemes.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/KeyValue.cs">
+      <publishTime>03/09/2020 19:23:07</publishTime>
+    </File>
+    <File Include="Models/Manufacturer.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Parameters.cs">
+      <publishTime>03/04/2020 18:00:14</publishTime>
+    </File>
+    <File Include="Models/Poabstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/PoabstractReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ProductCategorization.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Properties.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/QueryFields.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/QueryParams2.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/QueryTables.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/QuotationAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ReceivedCustomers.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ReceivedSegments.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/RejectionReason.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ReportData.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ReportDataModel.cs">
+      <publishTime>03/25/2020 18:24:38</publishTime>
+    </File>
+    <File Include="Models/Reports.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ReportsToUpload.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Salesman.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/SalesPortalIplist.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Salesstaff.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Schemes.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/SchemesRec.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/ServiceTypeMaster.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Soabstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/SoabstractReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/SoldAs.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/SpecialCategory.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/State.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/StateCode.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/StockAdjustmentReason.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/StockRequestAbstractReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/StockTransferInAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/StockTransferOutAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/StockTransferOutAbstractReceived.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TargetMeasure.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TargetPeriod.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Tax.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TaxApplicableOn.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TaxStateType.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMErpAlltaxtype.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMErpConfigAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMerpSurveyChannelMapping.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMerpSurveyDsmapping.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMerpSurveyMaster.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMerpSurveyProductMapping.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMerpSurveyQuestionAnswerMapping.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMerpSurveyQuestionMapping.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/TblMErpZone.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Uom.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/UpdateDeliveryData.cs">
+      <publishTime>03/23/2020 14:46:41</publishTime>
+    </File>
+    <File Include="Models/UpgradeTables.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Users.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Van.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/VanStatementAbstract.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/VanStatementDetail.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/Vendors.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/VoucherPrefix.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+    <File Include="Models/WareHouse.cs">
+      <publishTime>03/06/2020 16:12:15</publishTime>
+    </File>
+  </ItemGroup>
 </Project>

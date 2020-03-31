@@ -51,7 +51,6 @@ namespace RetailApi.Data
             return null;
         }
 
-
         public async Task<List<KeyValue>> GetSalesManList()
         {
             if (db != null)
@@ -103,7 +102,7 @@ namespace RetailApi.Data
         {
             if (db != null)
             {
-                return await db.InvoiceAbstract.Where(w => !string.IsNullOrEmpty(w.DocSerialType)).Select(i => i.DocSerialType).Distinct().ToListAsync();
+                return await db.InvoiceAbstract.Where(w => !string.IsNullOrEmpty(w.DocSerialType)).OrderBy(o => o.DocSerialType).Select(i => i.DocSerialType).Distinct().ToListAsync();
             }
 
             return null;
@@ -152,5 +151,41 @@ namespace RetailApi.Data
 
             return null;
         }
+
+        public async Task<string> GetQueryParams(string querry)
+        {
+            if (db != null)
+            {
+                string cmd = string.Empty;
+                if (!string.IsNullOrEmpty(querry))
+                {
+                    string[] querrys = querry.Split(":").ToArray();
+                    if (querrys.Count() == 3)
+                    {
+                        cmd = "SELECT DISTINCT " + querrys[1] + "[value] FROM " + querrys[0] + " WITH (NOLOCK)" + (!string.IsNullOrEmpty(IsValidQuery(querrys[2])) ? " WHERE " + IsValidQuery(querrys[2]) : "");
+                    }
+                    if (querrys.Count() == 2)
+                    {
+                        cmd = "SELECT DISTINCT " + querrys[1] + "[value] FROM " + querrys[0] + " WITH (NOLOCK)";
+                    }
+                    if (!string.IsNullOrEmpty(cmd))
+                    {
+                        DataRepository dataRepository = new DataRepository();
+                        return await dataRepository.GetData(cmd);
+                    }
+                }                
+            }
+            return null;
+        }
+
+        private string IsValidQuery(string querry)
+        {
+            if(querry.Contains("-1") || querry.Contains("+1"))
+            {
+                return "";
+            }
+            return querry;
+        }
+
     }
 }

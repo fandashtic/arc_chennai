@@ -147,6 +147,24 @@ namespace RetailApi.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost("getqueryparams")]
+        public async Task<IActionResult> GetQueryParams(StringBodyModel stringBodyModel)
+        {
+            try
+            {
+                var querrys = await parametersReposidry.GetQueryParams(stringBodyModel.Data);
+                if (querrys == null)
+                {
+                    return NotFound();
+                }
+                return Ok(querrys);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
     }
 }
 

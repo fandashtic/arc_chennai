@@ -89,7 +89,7 @@ namespace RetailApi.Controllers
             try
             {
                 DataRepository dataRepository = new DataRepository();
-                var reports = await dataRepository.GetData(reportsDataModel.ProcedureName, reportsDataModel.Parameters);
+                string reports = await dataRepository.GetData(reportsDataModel.ProcedureName, GetValidParameters(reportsDataModel.Parameters));
                 if (reports == null)
                 {
                     return NotFound();
@@ -102,6 +102,26 @@ namespace RetailApi.Controllers
             }
         }
 
+        private List<Parameters> GetValidParameters(List<Parameters> parameters)
+        {
+            List<Parameters> _parameters = new List<Parameters>();
+            try
+            {
+                parameters.ForEach(parameter =>
+                {
+                    if(IsValidQuery(parameter) != null)
+                    {
+                        _parameters.Add(parameter);
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return _parameters;
+        }
+
         private ReportDataModel RecursiveNodes(ReportDataModel reportData, List<ReportDataModel> reportDataModels)
         {
             reportData.Nodes = reportDataModels.Where(p => p.Parent == reportData.Id).ToList();
@@ -110,6 +130,25 @@ namespace RetailApi.Controllers
                 report = RecursiveNodes(report, reportDataModels);
             });
             return reportData;
+        }
+
+        private Parameters IsValidQuery(Parameters parameters)
+        {
+            if(parameters != null && !String.IsNullOrEmpty(parameters.AutoComplete))
+            {
+                if (parameters.AutoComplete.Contains("-1"))
+                {
+                    return null;
+                }
+                else
+                {
+                    return parameters;
+                }
+            }
+            else
+            {
+                return parameters;
+            }
         }
     }
 }

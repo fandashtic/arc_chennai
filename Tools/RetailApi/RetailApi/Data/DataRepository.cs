@@ -46,10 +46,17 @@ namespace RetailApi.Data
                         };
                         if (parameters.Count > 0)
                         {
-                            parameters.ForEach(parameter =>
+                            List<KeyValue> _parameterNames = GetProcedureParameters(procName);
+                            //int i = 0;
+                            for (int i = 0; i < parameters.Count; i++)
                             {
-                                cmd.Parameters.Add("@" + parameter.ParameterName, SqlDbType.VarChar).Value = parameter.ParameterValue;
-                            });
+                                cmd.Parameters.Add(_parameterNames.Where(s => s.Key == (i+1).ToString()).Select(a => a.Value).FirstOrDefault(), SqlDbType.VarChar).Value = parameters[i].ParameterValue;                                
+                            } 
+                            //parameters.ForEach(parameter =>
+                            //{
+                            //    cmd.Parameters.Add(GetIndexedParameterName(_parameterNames, i), SqlDbType.VarChar).Value = parameter.ParameterValue;
+                            //    i++;
+                            //});
 
                         }
                         SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -63,8 +70,9 @@ namespace RetailApi.Data
                     }
                 }
             }
-            catch (Exception exSP)
+            catch (Exception ex)
             {
+                var er = ex.Message;
                 connection = null;
             }
             finally
@@ -77,7 +85,7 @@ namespace RetailApi.Data
             return DataUtility.DataTableToJSON(dt);
         }
 
-        public string GetData(string Command)
+        public async Task<string> GetData(string Command)
         {
             DataTable dt = new DataTable();
             try
@@ -118,6 +126,68 @@ namespace RetailApi.Data
             return DataUtility.DataTableToJSON(dt);
         }
 
-        
+        private List<KeyValue> GetProcedureParameters(string procedure)
+        {
+            DataTable dt = new DataTable();
+            List<KeyValue> parameters = new List<KeyValue>();
+            try
+            {
+                if (!string.IsNullOrEmpty(procedure))
+                {
+                    string commandStrings = "SELECT ORDINAL_POSITION, PARAMETER_NAME FROM INFORMATION_SCHEMA.PARAMETERS WITH (NOLOCK) WHERE SPECIFIC_NAME='" + procedure + "'";
+                    using (connection = new SqlConnection(sqlConnectionString))
+                    {
+                        connection.Open();
+                        SqlCommand cmd = new SqlCommand(commandStrings, connection)
+                        {
+                            CommandTimeout = 0,
+                            CommandType = CommandType.Text
+                        };
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        da.Fill(dt);
+                        //Int32.TryParse(dt.Rows[0].ItemArray[0].ToString(), out int count);
+                        //if (count > 0)
+                        //{
+                            for (int i = 0; i < dt.Rows.Count; i++)
+                            {
+                            parameters.Add(
+                                new KeyValue()
+                                {
+                                    Key = dt.Rows[i]["ORDINAL_POSITION"].ToString(),
+                                    Value = dt.Rows[i]["PARAMETER_NAME"].ToString()
+                                });                                
+                            }
+                        //}
+                        connection.Close();
+                    }
+                }
+            }
+            catch (Exception exCMD)
+            {
+                connection = null;
+            }
+            finally
+            {
+                if (connection != null && connection.State == System.Data.ConnectionState.Open)
+                {
+                    connection.Close();
+                }
+            }
+            return parameters;
+        }
+
+        private string GetIndexedParameterName(List<string> names, int index)
+        {
+            int i = 0;
+            string parameterName = string.Empty;
+            names.ForEach(name => {
+                if(i == index)
+                {
+                    parameterName = name;
+                }
+                i++;
+            });
+            return parameterName;
+        }
     }
 }
