@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
-import { JsonToTable } from "react-json-to-table";
+import JsonToTable from './../../../elements/JsonToTable'
 import axios from "././../../../api";
 import VanListCombo from './../../../elements/VanListCombo';
 import VehicleTypeCombo from './../../../elements/VehicleTypeCombo';
@@ -177,7 +177,7 @@ class NewDelivery extends Component {
     renderTable = (state) => {
         return (
             <div className="table table-hover">
-                <JsonToTable json={state.invoiceList} />
+                <JsonToTable jsonData={state.invoiceList} />
             </div>
         );
     }

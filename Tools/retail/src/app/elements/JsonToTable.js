@@ -10,7 +10,8 @@ class JsonToTable extends Component {
     }
 
     generateRows = () => 
-        if (this.props.jsonData.length > 0) {
+    {
+        if(this.props.jsonData.length > 0) {
             var cols = Object.keys(this.props.jsonData[0]), data = this.props.jsonData;
             var rows = data.map(function (item, k) {
                 var cells = cols.map(function (colData, j) {
