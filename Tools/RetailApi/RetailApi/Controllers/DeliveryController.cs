@@ -20,17 +20,18 @@ namespace RetailApi.Controllers
             deliveryReposidry = _deliveryReposidry;
         }
 
-        [HttpGet("[action]/{Van?}")]
-        public ActionResult<string> GerSalesInvoiceByDateAndVan(string Van, [FromQuery] DateTime Todate)
+        [HttpGet("gersalesinvoicebydateandvan/{van?}")]
+        public async Task<ActionResult<string>> GerSalesInvoiceByDateAndVanAsync(string van, [FromQuery] DateTime Todate)
         {
             try
             {
+                DataRepository dataRepository = new DataRepository();
                 List<Parameters> parameters = new List<Parameters>();
                 parameters.Add(new Parameters() { ParameterName = "TODATE", ParameterValue = Todate.ToString("dd-MMM-yyyy") });
-                parameters.Add(new Parameters() { ParameterName = "Van", ParameterValue = DataUtility.ParamValue(Van) });
+                parameters.Add(new Parameters() { ParameterName = "Van", ParameterValue = DataUtility.ParamValue(van) });
                 DataRepository reportDataRepository = new DataRepository();
-                //string str = reportDataRepository.GetData("Sp_arc_get_SalesFormDelivery", parameters);
-                return "";
+                string str = await dataRepository.GetData("Sp_arc_get_SalesFormDelivery", parameters);
+                return str;
             }
             catch (Exception ex)
             {
