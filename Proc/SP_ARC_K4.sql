@@ -10,15 +10,16 @@ GO
 CREATE PROCEDURE [dbo].SP_ARC_K4 (@FromDate DateTime, @ToDate DateTime, @ItemFamily Nvarchar(255) = '%')      
 AS
 BEGIN
-	SET DATEFORMAT DMY
-	select Billid, ODNumber,InvoiceReference, BillDate, I.ItemFamily, 
-	SUM(OtherDiscPercAmount) [Value by Percentage Discount],
-		SUM(OtherDiscAmtPerUnitAmount) [Value By Unit Discount]
-	from V_ARC_Purchase_ItemDetails P WITH (NOLOCK)
-	RIGHT OUTER JOIN V_ARC_Items I ON I.Product_Code = P.Product_Code
-	where dbo.StripDateFromTime(BillDate) between @FromDate AND @ToDate
-	AND I.ItemFamily = (Case When ISNULL(@ItemFamily, '') = '%' THEN I.ItemFamily Else @ItemFamily END)
-	group by Billid,ODNumber,InvoiceReference, BillDate, I.ItemFamily
+ SET DATEFORMAT DMY  
+ select Billid, ODNumber,InvoiceReference, BillDate, I.ItemFamily, 
+ (OtherDiscPerc) [Other Disc Perc],  
+ SUM(OtherDiscPercAmount) [Value by Percentage Discount],  
+  SUM(OtherDiscAmtPerUnitAmount) [Value By Unit Discount]  
+ from V_ARC_Purchase_ItemDetails P WITH (NOLOCK)  
+ RIGHT OUTER JOIN V_ARC_Items I ON I.Product_Code = P.Product_Code  
+ where dbo.StripDateFromTime(BillDate) between @FromDate AND @ToDate  
+ AND I.ItemFamily = (Case When ISNULL(@ItemFamily, '') = '%' THEN I.ItemFamily Else @ItemFamily END)  
+ group by Billid,ODNumber,InvoiceReference, BillDate, I.ItemFamily, OtherDiscPerc
 END
 GO
 Delete From ParameterInfo Where ParameterID = 643
