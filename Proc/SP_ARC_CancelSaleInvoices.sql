@@ -19,7 +19,7 @@ Begin
   
  SElect @AMENDED = dbo.LookupDictionaryItem(N'Amended',Default)  
  SElect @CANCELLED = dbo.LookupDictionaryItem(N'Cancelled',Default)  
- SELECT @INV = Prefix FROM VoucherPrefix WHERE TranID = N'INVOICE'  
+ SELECT @INV = Prefix FROM VoucherPrefix WITH (NOLOCK) WHERE TranID = N'INVOICE'  
   
  Create Table #TmpDS (SalesmanID Int)  
   
@@ -55,12 +55,12 @@ Begin
   
  If @SalesMan = '%'  
  Begin  
-  Insert Into #TmpDS Select SalesmanID From Salesman  
+  Insert Into #TmpDS Select SalesmanID From Salesman WITH (NOLOCK)  
  End  
  Else  
  Begin  
   Insert Into #TmpDS      
-  Select SalesmanID From Salesman Where Salesman_Name In (Select * From dbo.sp_splitin2Rows(@SalesMan,@Delimeter))      
+  Select SalesmanID From Salesman WITH (NOLOCK) Where Salesman_Name In (Select * From dbo.sp_splitin2Rows(@SalesMan,@Delimeter))      
  End  
   
  Insert Into #Temp  
@@ -100,21 +100,21 @@ Begin
   "Adj Ref" = dbo.GetAdjustments(Cast(InvoiceAbstract.PaymentDetails As Int), InvoiceAbstract.InvoiceID),  
   "GSTIN of Outlet" = InvoiceAbstract.GSTIN,  
   "Outlet State Code" = InvoiceAbstract.ToStateCode,  
-  "Adjusted Amount" = (Select Sum(AdjustedAmount) From CollectionDetail  
+  "Adjusted Amount" = (Select Sum(AdjustedAmount) From CollectionDetail WITH (NOLOCK)  
   Where CollectionID = Cast(PaymentDetails As Int) And   
   DocumentID <> InvoiceAbstract.InvoiceID  
-  And InvoiceAbstract.SalesmanID in (Select Distinct SalesmanID From #TmpDS)),  
+  And InvoiceAbstract.SalesmanID in (Select Distinct SalesmanID From #TmpDS WITH (NOLOCK))),  
   Null,  
   InvoiceAbstract.CancelReasonID  
- FROM InvoiceAbstract  
- Inner Join Customer On  InvoiceAbstract.CustomerID = Customer.CustomerID   
- Left Outer Join CreditTerm On  InvoiceAbstract.CreditTerm = CreditTerm.CreditID  
- Left Outer Join ClientInformation On InvoiceAbstract.ClientID = ClientInformation.ClientID  
- Left Outer Join Beat On  InvoiceAbstract.BeatID = Beat.BeatID   
- Left Outer Join Salesman On  InvoiceAbstract.SalesmanID = Salesman.SalesmanID   
+ FROM InvoiceAbstract WITH (NOLOCK)  
+ Inner Join Customer WITH (NOLOCK) On  InvoiceAbstract.CustomerID = Customer.CustomerID   
+ Left Outer Join CreditTerm WITH (NOLOCK) On  InvoiceAbstract.CreditTerm = CreditTerm.CreditID  
+ Left Outer Join ClientInformation WITH (NOLOCK) On InvoiceAbstract.ClientID = ClientInformation.ClientID  
+ Left Outer Join Beat WITH (NOLOCK) On  InvoiceAbstract.BeatID = Beat.BeatID   
+ Left Outer Join Salesman WITH (NOLOCK) On  InvoiceAbstract.SalesmanID = Salesman.SalesmanID   
  WHERE   InvoiceType in (1,3,4) AND InvoiceDate BETWEEN @FROMDATE AND @TODATE AND  
  (InvoiceAbstract.Status & 64) = 64  
- And InvoiceAbstract.SalesmanID in (Select Distinct SalesmanID From #TmpDS)  
+ And InvoiceAbstract.SalesmanID in (Select Distinct SalesmanID From #TmpDS WITH (NOLOCK))  
   
  Union  
  SELECT  InvoiceID,   
@@ -150,21 +150,21 @@ Begin
   "Adjusted Amount" = Null,  
   Null,  
   InvoiceAbstract.CancelReasonID  
- FROM InvoiceAbstract  
- Left Outer Join Customer On InvoiceAbstract.CustomerID = Customer.CustomerID   
- Left Outer Join ClientInformation On InvoiceAbstract.ClientID = ClientInformation.ClientID   
- Left Outer Join  SalesMan On InvoiceAbstract.SalesManID = Salesman.SalesmanID   
+ FROM InvoiceAbstract WITH (NOLOCK)  
+ Left Outer Join Customer WITH (NOLOCK) On InvoiceAbstract.CustomerID = Customer.CustomerID   
+ Left Outer Join ClientInformation WITH (NOLOCK) On InvoiceAbstract.ClientID = ClientInformation.ClientID   
+ Left Outer Join  SalesMan WITH (NOLOCK) On InvoiceAbstract.SalesManID = Salesman.SalesmanID   
  WHERE   InvoiceType = 2 AND InvoiceDate BETWEEN @FROMDATE AND @TODATE AND  
  (InvoiceAbstract.Status & 64) = 64  
- And InvoiceAbstract.SalesmanID in (Select Distinct SalesmanID From #TmpDS)  
+ And InvoiceAbstract.SalesmanID in (Select Distinct SalesmanID From #TmpDS WITH (NOLOCK))  
  Order By InvoiceID  
   
- Update T Set T.Reason = IR.Reason From #Temp T,InvoiceReasons IR Where T.CancelReasonID = IR.ID   
+ Update T Set T.Reason = IR.Reason From #Temp T WITH (NOLOCK),InvoiceReasons IR WITH (NOLOCK) Where T.CancelReasonID = IR.ID   
   
  Select  (cast([ID] as Nvarchar(255)) + ',' + @UOM )ID,[InvoiceID],[Date],[Payment Date],[Credit Term],[CustomerID],[Customer Name],[Customer Category], [Customer Group],[Gross Value],[Trade Discount%],[Trade Discount(Rs.)]  
  [Addl Discount],[Addl Discount(Rs.)],[Freight],[Net Value],[Reference],[Status],[Balance],[Branch],[Beat],[Salesman]  
  [Adj Ref],[Adjusted Amount],Reason,[GSTIN of Outlet],[Outlet State Code]  
- from #Temp  
+ from #Temp WITH (NOLOCK)  
   
  Drop Table #Temp  
  Drop Table #TmpDS  
