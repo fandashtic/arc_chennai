@@ -1,13 +1,9 @@
 --exec [sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM] 65966 
-IF EXISTS(SELECT * 
-          FROM   sys.objects 
-          WHERE  NAME = N'sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM') 
-  BEGIN 
-      DROP PROC sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM 
-  END 
-
-go 
-
+IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM')
+BEGIN
+    DROP PROC [sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM]
+END
+GO
 CREATE PROCEDURE [dbo].[sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM](@INVNO 
 INT) 
 AS 
@@ -1307,7 +1303,9 @@ dbo.Merp_fn_getcreditnotedetails_gst(@INVNO),
 WHEN customer.tngst = '' THEN '' 
 ELSE 'FSSAI No. : ' + customer.tngst 
 END, 
-"WDFSSAINO" = @WDFSSAINO 
+"WDFSSAINO" = @WDFSSAINO
+,"LastPrintOn" = InvoiceAbstract.LastPrintOn
+,"PrintCount" = InvoiceAbstract.PrintCount
 FROM   invoiceabstract 
 INNER JOIN customer 
 ON invoiceabstract.customerid = customer.customerid 
@@ -1330,6 +1328,8 @@ ON invoiceabstract.tostatecode = SCBilling.stateid
 LEFT OUTER JOIN statecode SCShipping 
 ON customer.shippingstateid = SCShipping.stateid 
 WHERE  invoiceid = @INVNO 
+
+EXEC SP_SLM_LastPrintUpdate @INVNO
 END 
 
 go 
