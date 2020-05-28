@@ -1,4 +1,4 @@
---exec [sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM] 65966 
+--exec [sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM] 47196 
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM')
 BEGIN
     DROP PROC [sp_print_InvAbstract_Windows_CIG_IGST_ITC_GST_SLM]
@@ -613,6 +613,7 @@ AS
                              NVARCHAR( 
                              10)) 
                              + '  ' 
+
                              + Space(10-Len(Cast(Cast(cgstamt AS DECIMAL(10, 2)) 
                              AS 
                              NVARCHAR( 
@@ -625,6 +626,7 @@ AS
                              10 
                              )) 
                              + '  ' 
+
                              + Space(10-Len(Cast(Cast(sgstamt AS DECIMAL(10, 2)) 
                              AS 
                              NVARCHAR( 
@@ -637,6 +639,7 @@ AS
                              10 
                              )) 
                              + '  ' 
+
                              + Space(10-Len(Cast(Cast(total AS DECIMAL(10, 2)) 
                              AS 
                              NVARCHAR(10 
@@ -707,24 +710,30 @@ AS
              CESSAmt=Sum(cessamt), 
              ADDLCESSPer=Max(addlcessper), 
              ADDLCESSAmt=Sum(addlcessamt), 
-             Total= Sum(igstamt + cessamt + addlcessamt) 
+             Total= Sum(sgstamt + cgstamt + cessamt + addlcessamt) 
       INTO   #gstaxsummary 
       FROM   #tempinvdet2 
       GROUP  BY taxid 
 
       DECLARE @GSTTaxSumText NVARCHAR(25) 
       DECLARE @GSTTaxComp NVARCHAR(max) 
-      DECLARE @GSTTaxComp_DOS NVARCHAR(max) 
-      DECLARE @GSTTaxCompText NVARCHAR(200) 
+      DECLARE @CIGTaxCompDet NVARCHAR(max) 
+      DECLARE @CIGTaxCompText NVARCHAR(200) 
       DECLARE @GSTTaxCompText_DOS NVARCHAR(200) 
 
       SET @GSTTaxSumText = 'Tax Summary :' 
-      SET @GSTTaxCompText = 'Tax Summary/GST  Component' + Space(32) 
-                            + 'TaxableVal' + Space(14) + 'IGST' + Space(10) 
+      SET @CIGTaxCompText = 'Tax Summary/GST  Component' + Space(32) 
+                            + 'TaxableVal' + Space(14) + 
+							'CGST' + Space(8) + CASE WHEN @UTGST_flag = 1 THEN 'UTGST' ELSE '  SGST' END
+							--'IGST' 
+							+ Space(10) 
                             + 'Cess' + Space(6) + 'AddlCess'+ + Space(4) 
                             + 'Total Tax' 
       SET @GSTTaxCompText_DOS= 'Tax Summary/GST  Component' + Space(19) 
-                               + 'TaxableVal ' + Space(6) + 'IGST ' + Space(6) 
+                               + 'TaxableVal ' + Space(6) + 
+							   'CGST' + Space(8) + CASE WHEN @UTGST_flag = 1 THEN 'UTGST' ELSE '  SGST' END
+							   --'IGST ' 
+							   + Space(6) 
                                + 'Cess ' + Space(2) + 'AddlCess '+ + Space(1) 
                                + 'Total Tax' 
       SET @GSTTaxComp = '  '+ + Char(13) + Char(10) 
@@ -793,17 +802,26 @@ AS
                            + Char(13) + Char(10)
       FROM   #gstaxsummary 
 
-      SET @GSTTaxComp_DOS = '' 
+      SET @CIGTaxCompDet = '' 
 
-      SELECT @GSTTaxComp_DOS = @GSTTaxComp_DOS + 'IGST' 
-                               + Replicate(' ', 5-Len(Cast(Cast(igstper AS 
+      SELECT @CIGTaxCompDet = 'SGST ' + Replicate(' ', 5-Len(Cast(Cast(sgstper AS 
                                DECIMAL 
                                (5, 
                                2)) AS 
                                       NVARCHAR(5)))) 
-                               + Cast(Cast(igstper AS DECIMAL(5, 2)) AS NVARCHAR 
+                               + Cast(Cast(sgstper AS DECIMAL(5, 2)) AS NVARCHAR 
                                (5 
                                )) 
+
+							   +'% + CGST ' + Replicate(' ', 5-Len(Cast(Cast(cgstper AS 
+                               DECIMAL 
+                               (5, 
+                               2)) AS 
+                                      NVARCHAR(5)))) 
+                               + Cast(Cast(cgstper AS DECIMAL(5, 2)) AS NVARCHAR 
+                               (5 
+                               )) 
+
                                + '% + Cess' 
                                + Replicate(' ', 5-Len(Cast(Cast(cessper AS 
                                DECIMAL 
@@ -830,14 +848,25 @@ AS
                                NVARCHAR 
                                (10)) 
                                + ' ' 
-                               + Replicate(' ', 10-Len(Ltrim(Cast(Cast(igstamt 
+
+                               + Replicate(' ', 10-Len(Ltrim(Cast(Cast(sgstamt 
                                AS 
                                DECIMAL(10, 
                                       2)) AS NVARCHAR(10))))) 
-                               + Cast(Cast(igstamt AS DECIMAL(10, 2)) AS 
+                               + Cast(Cast(sgstamt AS DECIMAL(10, 2)) AS 
                                NVARCHAR( 
                                10)) 
-                               + ' ' 
+                               + ' '
+
+							    + Replicate(' ', 10-Len(Ltrim(Cast(Cast(cgstamt 
+                               AS 
+                               DECIMAL(10, 
+                                      2)) AS NVARCHAR(10))))) 
+                               + Cast(Cast(cgstamt AS DECIMAL(10, 2)) AS 
+                               NVARCHAR( 
+                               10)) 
+                               + ' '
+							   
                                + Replicate(' ', 10-Len(Cast(cessamt AS DECIMAL( 
                                10, 
                                2)) 
@@ -1295,10 +1324,10 @@ dbo.Merp_fn_getcreditnotedetails_gst(@INVNO),
 "GSTTaxCompHead" = @GSTaxCompHead, 
 "GSTTaxCompHead_DOS" = @GSTaxCompHead_DOS, 
 "Tax Summary Text" = @GSTTaxSumText, 
-"TaxComp Text" = @GSTTaxCompText, 
 "GSTTaxComp" = @GSTTaxComp, 
 "Tax Summary Text_DOS" = @GSTTaxCompText_DOS, 
-"GSTTaxComp_DOS" = @GSTTaxComp_DOS, 
+"CIGTaxCompText" = @CIGTaxCompText, 
+"CIGTaxCompDet" = @CIGTaxCompDet, 
 "FSSAINO" = CASE 
 WHEN customer.tngst = '' THEN '' 
 ELSE 'FSSAI No. : ' + customer.tngst 

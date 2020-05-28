@@ -1,4 +1,4 @@
---exec [sp_print_RetInvItems_RespectiveUOM_CIG_IGST_ITC_GST_Siva] 808672
+--exec [sp_print_RetInvItems_RespectiveUOM_CIG_IGST_ITC_GST_Siva] 47196 
 IF EXISTS(SELECT * FROM sys.objects WHERE Name = N'sp_print_RetInvItems_RespectiveUOM_CIG_IGST_ITC_GST_Siva')
 BEGIN
     DROP PROC [sp_print_RetInvItems_RespectiveUOM_CIG_IGST_ITC_GST_Siva]
@@ -277,6 +277,7 @@ End,''),
 ,"SGST%" = @decivar
 ,"IGST%" = @decivar
 ,"CESS%" = @decivar
+,"ADDLCESS%" = @decivar
 
 Into
 #TmpInvDet
@@ -346,6 +347,7 @@ CGST	 = (case when dbo.[fn_GetTaxValueByComponent](TaxID,@CGST) > 0 then dbo.[fn
 ,[SGST%]	 = dbo.[fn_GetTaxValueByComponent](TaxID,@SGST)
 ,[IGST%]	 = dbo.[fn_GetTaxValueByComponent](TaxID,@IGST)
 ,[CESS%]	 = dbo.[fn_GetTaxValueByComponent](TaxID,@CESS)
+,[ADDLCESS%]	 = dbo.[fn_GetTaxValueByComponent](TaxID,@ADDLCESS)
 
 
 --Update #TmpInvDet Set
